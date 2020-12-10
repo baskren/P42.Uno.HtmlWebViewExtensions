@@ -1,13 +1,13 @@
-﻿using System;
+﻿#if NETFX_CORE
+using System;
 using System.Collections.Generic;
-#if NETFX_CORE
 using System.Threading.Tasks;
 using Windows.Graphics.Printing;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
-namespace P42.Uno.Printing
+namespace P42.Uno.HtmlWebViewExtensions
 {
 	/// <summary>
 	/// Web view extensions service.
@@ -28,7 +28,7 @@ namespace P42.Uno.Printing
 
 		public Task PrintAsync(WebView webView, string jobName)
 		{
-			P42.Utils.Uno.Device.BeginInvokeOnMainThread(async () =>
+			P42.Utils.Uno.Timer.BeginInvokeOnMainThread(async () =>
 			{
 				if (string.IsNullOrWhiteSpace(jobName))
 					jobName = P42.Utils.Uno.AppInfo.Name;
@@ -71,7 +71,7 @@ namespace P42.Uno.Printing
 						properties["line"] = "71";
 						printHelper.RegisterForPrinting();
 						properties["line"] = "73";
-						await printHelper.Init();
+						await printHelper.InitAsync();
 						properties["line"] = "75";
 						var showprint = await PrintManager.ShowPrintUIAsync();
 					}
@@ -85,17 +85,41 @@ namespace P42.Uno.Printing
 			return Task.CompletedTask;
 		}
 
-		public Task PrintAsync(string html, string jobName)
+
+
+		public async Task PrintAsync(string html, string jobName)
 		{
-			var webView = new WebView
-			{
-				Source = new HtmlWebViewSource
-				{
-					Html = html
-				}
-			};
-			return PrintAsync(webView, jobName);
+			var webView = new WebView();
+            webView.NavigationCompleted += OnNavigationComplete;
+            webView.NavigationFailed += OnNavigationFailed;
+
+			var tcs = new TaskCompletionSource<bool>();
+			webView.Tag = tcs;
+			webView.NavigateToString(html);
+			if (await tcs.Task)
+				await PrintAsync(webView, jobName);
 		}
-	}
+
+        static async void OnNavigationFailed(object sender, WebViewNavigationFailedEventArgs e)
+        {
+            if (sender is WebView webView && webView.Tag is TaskCompletionSource<bool> tcs)
+            {
+				tcs.SetResult(false);
+				await P42.Uno.Controls.Toast.CreateAsync("Print Service Error", "WebView failed to navigate to provided string.  Please try again.\n\nWebErrorStatus: " + e.WebErrorStatus);
+				return;
+			}
+			throw new Exception("Cannot locate WebView or TaskCompletionSource for WebView.OnNavigationFailed");
+		}
+
+		static void OnNavigationComplete(WebView webView, WebViewNavigationCompletedEventArgs args)
+        {
+            if (webView.Tag is TaskCompletionSource<bool> tcs)
+            {
+				tcs.SetResult(true);
+				return;
+            }
+			throw new Exception("Cannot locate TaskCompletionSource for WebView.NavigationToString");
+        }
+    }
 }
 #endif

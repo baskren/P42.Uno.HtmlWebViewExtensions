@@ -8,7 +8,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
-namespace P42.Uno.Printing
+namespace P42.Uno.HtmlWebViewExtensions
 {
     class WebViewPrintHelper : PrintHelper
     {
@@ -46,7 +46,7 @@ if(bases.length == 0){
 
         int instanceCount = 0;
 
-        public override async Task Init()
+        public override async Task InitAsync()
         {
 
             _webView = new WebView

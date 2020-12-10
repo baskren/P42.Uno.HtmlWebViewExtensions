@@ -1,2 +1,3 @@
-# P42.Uno.Printing
-Uno Print utilities (until better ones can be baked into Uno)
+# P42.Uno.HtmlWebViewExtensions
+
+Print, To PNG, and To PDF extensions for Uno's Windows.UI.Xaml.Controls.WebView

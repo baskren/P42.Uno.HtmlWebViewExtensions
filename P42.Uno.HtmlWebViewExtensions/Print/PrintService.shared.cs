@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 
-namespace P42.Uno.Printing
+namespace P42.Uno.HtmlWebViewExtensions
 {
     public static class PrintService
     {
@@ -36,7 +36,7 @@ namespace P42.Uno.Printing
         /// Gets a value indicating whether this <see cref="T:Forms9Patch.WebViewExtensions"/> can print.
         /// </summary>
         /// <value><c>true</c> if can print; otherwise, <c>false</c>.</value>
-        public static bool CanPrint
+        public static bool IsAvailable
             => NativePrintService.CanPrint();
     }
 }

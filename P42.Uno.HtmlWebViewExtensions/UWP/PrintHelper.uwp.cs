@@ -8,7 +8,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Printing;
 
-namespace P42.Uno.Printing
+namespace P42.Uno.HtmlWebViewExtensions
 {
     public class PrintHelper
     {
@@ -102,13 +102,13 @@ namespace P42.Uno.Printing
             printPreviewPages = new List<UIElement>();
             // Start these tasks early because we know we're going to need the
             // streams in PrintTaskRequested.
-            RandomAccessStreamReference wideMarginsIconReference = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Forms9Patch.UWP/Assets/wideMargins.svg"));
+            var wideMarginsIconReference = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///P42.Uno.HtmlWebViewExtensions/Assets/wideMargins.svg"));
             wideMarginsIconTask = wideMarginsIconReference.OpenReadAsync().AsTask();
 
-            RandomAccessStreamReference moderateMarginsIconReference = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Forms9Patch.UWP/Assets/moderateMargins.svg"));
+            var moderateMarginsIconReference = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///P42.Uno.HtmlWebViewExtensions/Assets/moderateMargins.svg"));
             moderateMarginsIconTask = moderateMarginsIconReference.OpenReadAsync().AsTask();
 
-            RandomAccessStreamReference narrowMarginsIconReference = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Forms9Patch.UWP/Assets/narrowMargins.svg"));
+            var narrowMarginsIconReference = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///P42.Uno.HtmlWebViewExtensions/Assets/narrowMargins.svg"));
             narrowMarginsIconTask = narrowMarginsIconReference.OpenReadAsync().AsTask();
         }
 
@@ -124,7 +124,7 @@ namespace P42.Uno.Printing
             printDocument.GetPreviewPage += GetPrintPreviewPage;
             printDocument.AddPages += AddPrintPages;
 
-            PrintManager printMan = PrintManager.GetForCurrentView();
+            var printMan = PrintManager.GetForCurrentView();
             printMan.PrintTaskRequested += PrintTaskRequested;
         }
 
@@ -133,7 +133,7 @@ namespace P42.Uno.Printing
         /// </summary>
         public virtual void UnregisterForPrinting()
         {
-            Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
+            Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(() =>
             {
                 if (printDocument != null)
                 {
@@ -142,7 +142,7 @@ namespace P42.Uno.Printing
                     printDocument.AddPages -= AddPrintPages;
 
                     // Remove the handler for printing initialization.
-                    PrintManager printMan = PrintManager.GetForCurrentView();
+                    var printMan = PrintManager.GetForCurrentView();
                     printMan.PrintTaskRequested -= PrintTaskRequested;
                 }
 
@@ -159,7 +159,7 @@ namespace P42.Uno.Printing
 
         public string JobName { get; private set; }
 
-        public async Task ShowPrintUIAsync()
+        public static async Task ShowPrintUIAsync()
         {
             // Catch and print out any errors reported
             try
@@ -170,7 +170,7 @@ namespace P42.Uno.Printing
             catch (Exception e)
             {
                 //MainPage.Current.NotifyUser("Error printing: " + e.Message + ", hr=" + e.HResult, NotifyType.ErrorMessage);
-                using (Forms9Patch.Toast.Create(null, "Error printing: " + e.Message + ", hr=" + e.HResult)) { }
+                await P42.Uno.Controls.Toast.CreateAsync(null, "Error printing: " + e.Message + ", hr=" + e.HResult);
             }
         }
 
@@ -181,7 +181,7 @@ namespace P42.Uno.Printing
         /// </summary>
         /// <param name="page">The page to print</param>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public virtual async Task Init()
+        public virtual async Task InitAsync()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             //CreatePrintPreviewPages()
@@ -206,21 +206,21 @@ namespace P42.Uno.Printing
             {
                 var deferral = sourceRequestedArgs.GetDeferral();
 
-                PrintTaskOptionDetails printDetailedOptions = PrintTaskOptionDetails.GetFromPrintTaskOptions(printTask.Options);
-                IList<string> displayedOptions = printTask.Options.DisplayedOptions;
+                var printDetailedOptions = PrintTaskOptionDetails.GetFromPrintTaskOptions(printTask.Options);
+                var displayedOptions = printTask.Options.DisplayedOptions;
                 displayedOptions.Clear();
-                displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Copies);
-                displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Orientation);
-                displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.PrintQuality);
-                displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.MediaSize);
-                displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Collation);
-                displayedOptions.Add(Windows.Graphics.Printing.StandardPrintTaskOptions.Duplex);
+                displayedOptions.Add(StandardPrintTaskOptions.Copies);
+                displayedOptions.Add(StandardPrintTaskOptions.Orientation);
+                displayedOptions.Add(StandardPrintTaskOptions.PrintQuality);
+                displayedOptions.Add(StandardPrintTaskOptions.MediaSize);
+                displayedOptions.Add(StandardPrintTaskOptions.Collation);
+                displayedOptions.Add(StandardPrintTaskOptions.Duplex);
 
                 // Preset the default value of the printer option
                 printTask.Options.MediaSize = PrintMediaSize.NorthAmericaLetter;
 
                 // Create a new list option
-                PrintCustomItemListOptionDetails margins = printDetailedOptions.CreateItemListOption("Margins", "Margins");
+                var margins = printDetailedOptions.CreateItemListOption("Margins", "Margins");
                 /*
                 if (Forms9Patch.OsInfoService.Version >= new Version(10, 0, 17134, 0))
                 {
@@ -246,22 +246,22 @@ namespace P42.Uno.Printing
                 // Add the custom option to the option list
                 displayedOptions.Add("Margins");
 
-                printDetailedOptions.OptionChanged += OnPrintDetailOptionChanged;
+                printDetailedOptions.OptionChanged += OnPrintDetailOptionChangedAsync;
 
                 // Print Task event handler is invoked when the print job is completed.
                 printTask.Completed += (s, args) =>
                 {
-                    Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(() =>
+                    Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(async() =>
                     {
                         // Notify the user when the print operation fails.
                         if (args.Completion == PrintTaskCompletion.Failed)
-                            using (Toast.Create("Printing Failed", null)) { }
+                            await P42.Uno.Controls.Toast.CreateAsync("Printing Failed", null);
                         //else if (args.Completion == PrintTaskCompletion.Canceled)
                         //    using (Toast.Create("Printing Cancelled", null)) { }
                         else if (args.Completion == PrintTaskCompletion.Submitted)
-                            using (Toast.Create("Printing ...", "Print job submitted to printer.", TimeSpan.FromSeconds(5))) { }
+                            await P42.Uno.Controls.Toast.CreateAsync("Printing ...", "Print job submitted to printer.", TimeSpan.FromSeconds(5));
                         else if (args.Completion == PrintTaskCompletion.Abandoned)
-                            using (Toast.Create("Printing Abandoned", null)) { }
+                            await P42.Uno.Controls.Toast.CreateAsync("Printing Abandoned", null);
                     });
                     UnregisterForPrinting();
                 };
@@ -273,12 +273,12 @@ namespace P42.Uno.Printing
         }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        async void OnPrintDetailOptionChanged(PrintTaskOptionDetails sender, PrintTaskOptionChangedEventArgs args)
+        async void OnPrintDetailOptionChangedAsync(PrintTaskOptionDetails sender, PrintTaskOptionChangedEventArgs args)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            bool invalidatePreview = false;
+            var invalidatePreview = false;
 
-            string optionId = args.OptionId as string;
+            var optionId = args.OptionId as string;
             if (string.IsNullOrEmpty(optionId))
             {
                 return;
@@ -286,8 +286,8 @@ namespace P42.Uno.Printing
 
             if (optionId == "Margins")
             {
-                PrintCustomItemListOptionDetails marginsOption = (PrintCustomItemListOptionDetails)sender.Options["Margins"];
-                string marginsValue = marginsOption.Value.ToString();
+                var marginsOption = (PrintCustomItemListOptionDetails)sender.Options["Margins"];
+                var marginsValue = marginsOption.Value.ToString();
 
                 switch (marginsValue)
                 {
@@ -302,6 +302,8 @@ namespace P42.Uno.Printing
                     case "NarrowMargins":
                         ApplicationContentMarginTop = 0.05;
                         ApplicationContentMarginLeft = 0.05;
+                        break;
+                    default:
                         break;
                 }
                 /*
@@ -322,14 +324,10 @@ namespace P42.Uno.Printing
 
             if (invalidatePreview)
             {
-                //await PrintPage.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                //{
-                Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
+                Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(() =>
                 {
-
                     printDocument.InvalidatePreview();
                 });
-                //});
             }
         }
 
@@ -357,10 +355,10 @@ namespace P42.Uno.Printing
                 PrintCanvas.Children.Clear();
 
                 // Get the PrintTaskOptions
-                PrintTaskOptions printingOptions = ((PrintTaskOptions)e.PrintTaskOptions);
+                var printingOptions = e.PrintTaskOptions;
 
                 // Get the page description to deterimine how big the page is
-                PrintPageDescription pageDescription = printingOptions.GetPageDescription(0);
+                var pageDescription = printingOptions.GetPageDescription(0);
 
                 if (await GeneratePagesAsync(pageDescription) is List<UIElement> pages)
                 {
@@ -379,7 +377,7 @@ namespace P42.Uno.Printing
                 if (PreviewPagesCreated != null)
                     PreviewPagesCreated.Invoke(printPreviewPages, null);
 
-                PrintDocument printDoc = (PrintDocument)sender;
+                var printDoc = (PrintDocument)sender;
 
                 // Report the number of preview pages created
                 printDoc.SetPreviewPageCount(printPreviewPages.Count, PreviewPageCountType.Intermediate);
@@ -387,15 +385,17 @@ namespace P42.Uno.Printing
             }
             catch (Exception pve)
             {
-                P42.Utils.BreadCrumbs.AddException(pve, GetType());
+                //P42.Utils.BreadCrumbs.AddException(pve, GetType());
 
                 if (pve.Message.Contains("The RPC server is unavailable", StringComparison.OrdinalIgnoreCase))
-                    using (var toast = Forms9Patch.Toast.Create("The RPC server is unavailable", "Windows failed trying to setup the print preview because it could not connect to its RPC server.   There are three basic potential causes for this error message. Either the RPC service is not running, there are issues with the network, or some important registry entries that control the RPC service have been corrupted. In Windows 10, the most common cause for the error is that the RPC service is simply not running.  <a id='link' href='https://www.techjunkie.com/rpc-server-is-unavailable/'>Click here to learn more about how to fix this.</a>")) 
-                    {
-                        toast.ActionTagTapped += On_RpcUnavailable_Toast_ActionTagTapped;
-                    }
+                {
+                    var permission = await P42.Uno.Controls.PermissionPopup.CreateAsync("The RPC server is unavailable", "Windows failed trying to setup the print preview because it could not connect to its RPC server.   There are three basic potential causes for this error message. Either the RPC service is not running, there are issues with the network, or some important registry entries that control the RPC service have been corrupted. In Windows 10, the most common cause for the error is that the RPC service is simply not running.  <a id='link' href='https://www.techjunkie.com/rpc-server-is-unavailable/'>Click [LEARN MORE] to learn more about how to fix this.</a>", "LEARN MORE", "Cancel");
+                    await permission.WaitForPoppedAsync();
+                    if (permission.PermissionState == Controls.PermissionState.Ok)
+                        await Xamarin.Essentials.Browser.OpenAsync("https://www.techjunkie.com/rpc-server-is-unavailable/", Xamarin.Essentials.BrowserLaunchMode.SystemPreferred);
+                }
                 else
-                    using (Forms9Patch.Toast.Create("Cannot print", "Windows failed trying to setup the print preview.  Below is some information from Windows about the failure.  \n\n" + pve.Message)) { }
+                    await P42.Uno.Controls.Toast.CreateAsync("Cannot print", "Windows failed trying to setup the print preview.  Below is some information from Windows about the failure.  \n\n" + pve.Message);
             }
             finally
             {
@@ -403,10 +403,6 @@ namespace P42.Uno.Printing
             }
         }
 
-        private void On_RpcUnavailable_Toast_ActionTagTapped(object sender, ActionTagEventArgs e)
-        {
-            Xamarin.Essentials.Browser.OpenAsync(e.Href, Xamarin.Essentials.BrowserLaunchMode.SystemPreferred);
-        }
 
 
 
@@ -424,7 +420,7 @@ namespace P42.Uno.Printing
 
             await _semaphoreSlim.WaitAsync();
 
-            PrintDocument printDoc = (PrintDocument)sender;
+            var printDoc = (PrintDocument)sender;
             printDoc.SetPreviewPage(e.PageNumber, printPreviewPages[e.PageNumber - 1]);
             _semaphoreSlim.Release();
         }
@@ -448,7 +444,7 @@ namespace P42.Uno.Printing
                 printDocument.AddPage(printPreviewPages[i]);
             }
             
-            PrintDocument printDoc = (PrintDocument)sender;
+            var printDoc = (PrintDocument)sender;
             
             // Indicate that all of the print pages have been provided
             printDoc.AddPagesComplete();

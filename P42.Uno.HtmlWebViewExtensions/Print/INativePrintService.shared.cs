@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 
-namespace P42.Uno.Printing
+namespace P42.Uno.HtmlWebViewExtensions
 {
     /// <summary>
     /// Print service.
