@@ -10,12 +10,17 @@ namespace P42.Uno.HtmlWebViewExtensions
     public static class ToPdfService
     {
         static INativeToPdfService _nativeToPdfService;
-        static INativeToPdfService NativeToPdfService => _nativeToPdfService = _nativeToPdfService ?? new NativeToPdfService();
+        static INativeToPdfService NativeToPdfService =>
+#if __IOS__ || __ANDROID__ 
+            _nativeToPdfService = _nativeToPdfService ?? new NativeToPdfService();
+#else
+            null;
+#endif
 
         /// <summary>
         /// Returns true if PDF generation is available on this device
         /// </summary>
-        public static bool IsAvailable => NativeToPdfService != null;
+        public static bool IsAvailable => NativeToPdfService?.IsAvailable ?? false;
 
         /// <summary>
         /// Converts HTML text to PNG
@@ -34,7 +39,7 @@ namespace P42.Uno.HtmlWebViewExtensions
             if (pageSize.Width - margin.HorizontalThickness < 1 || pageSize.Height - margin.VerticalThickness < 1)
                 return new ToFileResult(true, "Page printable area (page size - margins) has zero width or height.");
 
-            return await NativeToPdfService.ToPdfAsync(html, fileName, pageSize, margin);
+            return await (NativeToPdfService?.ToPdfAsync(html, fileName, pageSize, margin) ?? Task.FromResult(new ToFileResult(true, "PDF Service is not implemented on this platform.")));
         }
 
         /// <summary>
@@ -54,7 +59,7 @@ namespace P42.Uno.HtmlWebViewExtensions
             if (pageSize.Width - margin.HorizontalThickness < 1 || pageSize.Height - margin.VerticalThickness < 1)
                 return new ToFileResult(true, "Page printable area (page size - margins) has zero width or height.");
 
-            return  await NativeToPdfService.ToPdfAsync(webView, fileName, pageSize, margin);
+            return  await (NativeToPdfService?.ToPdfAsync(webView, fileName, pageSize, margin) ?? Task.FromResult(new ToFileResult(true, "PDF Service is not implemented on this platform.")));
         }
     }
 }

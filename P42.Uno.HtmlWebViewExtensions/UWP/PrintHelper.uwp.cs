@@ -162,16 +162,16 @@ namespace P42.Uno.HtmlWebViewExtensions
         public static async Task ShowPrintUIAsync()
         {
             // Catch and print out any errors reported
-            try
-            {
+            //try
+            //{
                 await Task.Delay(100);
                 await PrintManager.ShowPrintUIAsync();
-            }
-            catch (Exception e)
-            {
+            //}
+            //catch (Exception e)
+            //{
                 //MainPage.Current.NotifyUser("Error printing: " + e.Message + ", hr=" + e.HResult, NotifyType.ErrorMessage);
-                await P42.Uno.Controls.Toast.CreateAsync(null, "Error printing: " + e.Message + ", hr=" + e.HResult);
-            }
+                //await P42.Uno.Controls.Toast.CreateAsync(null, "Error printing: " + e.Message + ", hr=" + e.HResult);
+            //}
         }
 
         /// <summary>
@@ -254,14 +254,14 @@ namespace P42.Uno.HtmlWebViewExtensions
                     Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(async() =>
                     {
                         // Notify the user when the print operation fails.
-                        if (args.Completion == PrintTaskCompletion.Failed)
-                            await P42.Uno.Controls.Toast.CreateAsync("Printing Failed", null);
+                        //if (args.Completion == PrintTaskCompletion.Failed)
+                        //    await P42.Uno.Controls.Toast.CreateAsync("Printing Failed", null);
                         //else if (args.Completion == PrintTaskCompletion.Canceled)
                         //    using (Toast.Create("Printing Cancelled", null)) { }
-                        else if (args.Completion == PrintTaskCompletion.Submitted)
-                            await P42.Uno.Controls.Toast.CreateAsync("Printing ...", "Print job submitted to printer.", TimeSpan.FromSeconds(5));
-                        else if (args.Completion == PrintTaskCompletion.Abandoned)
-                            await P42.Uno.Controls.Toast.CreateAsync("Printing Abandoned", null);
+                        //else if (args.Completion == PrintTaskCompletion.Submitted)
+                        //    await P42.Uno.Controls.Toast.CreateAsync("Printing ...", "Print job submitted to printer.", TimeSpan.FromSeconds(5));
+                        //else if (args.Completion == PrintTaskCompletion.Abandoned)
+                        //    await P42.Uno.Controls.Toast.CreateAsync("Printing Abandoned", null);
                     });
                     UnregisterForPrinting();
                 };
@@ -346,8 +346,8 @@ namespace P42.Uno.HtmlWebViewExtensions
             //lock (printPreviewPages)
             await _semaphoreSlim.WaitAsync();
 
-            try
-            {
+            //try
+            //{
                 // Clear the cache of preview pages
                 printPreviewPages.Clear();
 
@@ -381,7 +381,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 
                 // Report the number of preview pages created
                 printDoc.SetPreviewPageCount(printPreviewPages.Count, PreviewPageCountType.Intermediate);
-
+            /*
             }
             catch (Exception pve)
             {
@@ -399,8 +399,9 @@ namespace P42.Uno.HtmlWebViewExtensions
             }
             finally
             {
+            */
                 _semaphoreSlim.Release();
-            }
+            //}
         }
 
 

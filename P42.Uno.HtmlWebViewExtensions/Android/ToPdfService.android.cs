@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿#if __ANDROID__
+using System.IO;
 using Android.Graphics;
 using Android.Views;
 using System.Threading.Tasks;
@@ -23,7 +24,6 @@ namespace P42.Uno.HtmlWebViewExtensions
         {
             //if (!await XamarinEssentialsExtensions.ConfirmOrRequest<Xamarin.Essentials.Permissions.StorageWrite>())
             //    return new ToFileResult(true, "Write External Stoarge permission must be granted for PNG images to be available.");
-            var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
             using (var droidWebView = new Android.Webkit.WebView(Android.App.Application.Context))
             {
                 droidWebView.Settings.JavaScriptEnabled = true;
@@ -31,11 +31,10 @@ namespace P42.Uno.HtmlWebViewExtensions
                 droidWebView.DrawingCacheEnabled = true;
 #pragma warning restore CS0618 // Type or member is obsolete
                 droidWebView.SetLayerType(LayerType.Software, null);
-
-                //webView.Layout(0, 0, (int)((size.Width - 0.5) * 72), (int)((size.Height - 0.5) * 72));
                 droidWebView.Layout(0, 0, (int)System.Math.Ceiling(pageSize.Width), (int)System.Math.Ceiling(pageSize.Height));
-
                 droidWebView.LoadData(html, "text/html; charset=utf-8", "UTF-8");
+
+                var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
                 using (var callback = new WebViewCallBack(taskCompletionSource, fileName, pageSize, margin, OnPageFinished))
                 {
                     droidWebView.SetWebViewClient(callback);
@@ -48,7 +47,6 @@ namespace P42.Uno.HtmlWebViewExtensions
         {
             //if (!await XamarinEssentialsExtensions.ConfirmOrRequest<Xamarin.Essentials.Permissions.StorageWrite>())
             //    return new ToFileResult(true, "Write External Stoarge permission must be granted for PNG images to be available.");
-            var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
             if (unoWebView.GetNativeWebView() is Android.Webkit.WebView droidWebView)
             {
                 droidWebView.SetLayerType(LayerType.Software, null);
@@ -57,13 +55,14 @@ namespace P42.Uno.HtmlWebViewExtensions
                 droidWebView.DrawingCacheEnabled = true;
                 droidWebView.BuildDrawingCache();
 #pragma warning restore CS0618 // Type or member is obsolete
+                var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
                 using (var callback = new WebViewCallBack(taskCompletionSource, fileName, pageSize, margin, OnPageFinished))
                 {
                     droidWebView.SetWebViewClient(callback);
                     return await taskCompletionSource.Task;
                 }
             }
-            return null;
+            return await Task.FromResult(new ToFileResult(true, "Could not get NativeWebView for Uno WebView"));
         }
 
 
@@ -97,7 +96,6 @@ namespace P42.Uno.HtmlWebViewExtensions
                             }
                             
                             var adapter = droidWebView.CreatePrintDocumentAdapter(Guid.NewGuid().ToString());
-
                             using (var layoutResultCallback = new PdfLayoutResultCallback())
                             {
                                 layoutResultCallback.Adapter = adapter;
@@ -225,3 +223,4 @@ namespace Android.Print
 
 
 }
+#endif

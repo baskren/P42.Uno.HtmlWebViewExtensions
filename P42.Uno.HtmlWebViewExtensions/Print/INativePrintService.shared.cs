@@ -27,7 +27,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         /// Cans the print.
         /// </summary>
         /// <returns><c>true</c>, if print was caned, <c>false</c> otherwise.</returns>
-        bool CanPrint();
+        bool IsAvailable();
 
     }
 }

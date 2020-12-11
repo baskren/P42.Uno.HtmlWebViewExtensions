@@ -17,12 +17,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 {
     public class NativePrintService : INativePrintService
     {
-        //P42.Uno.Controls.BusyPopup _activityIndicatorPopup;
-
-        public bool CanPrint()
-        {
-            return Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat;
-        }
+        public bool IsAvailable() => Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat;
 
         public async Task PrintAsync(WebView unoWebView, string jobName)
         {

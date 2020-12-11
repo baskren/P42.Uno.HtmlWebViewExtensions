@@ -5,29 +5,38 @@
 	Please see https://github.com/unoplatform/uno/issues/3909 for more details.
 	-->
   <PropertyGroup>
-    <TargetFrameworks>uap10.0.17763;netstandard2.0;xamarinios10;xamarinmac20;MonoAndroid9.0;monoandroid10.0</TargetFrameworks>
+    <TargetFrameworks>uap10.0.17763;netstandard2.0;xamarinios10;xamarinmac20;monoandroid10.0;monoandroid11.0</TargetFrameworks>
     <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
+    <DebugType>portable</DebugType>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+  <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" $(TargetFramework.ToLower().StartsWith('monoandroid')) ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Uno.UI" Version="3.3.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="**\*.shared.cs" />
+    <Compile Include="**\*.shared.*.cs" />
+  </ItemGroup>
   <ItemGroup Condition=" $(TargetFramework.StartsWith('uap10.0')) ">
     <Compile Include="**\*.uwp.cs" />
     <Compile Include="**\*.uwp.*.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+  <ItemGroup Condition=" $(TargetFramework.ToLower().StartsWith('monoandroid')) ">
     <Compile Include="**\*.android.cs" />
     <Compile Include="**\*.android.*.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('xamarinios')) ">
     <Compile Include="**\*.ios.cs" />
     <Compile Include="**\*.ios.*.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.Mac20')) ">
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('xamarinmac')) ">
     <Compile Include="**\*.macos.cs" />
     <Compile Include="**\*.macos.*.cs" />
   </ItemGroup>
@@ -44,6 +53,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\P42.Uno.Controls\P42.Utils\P42.Utils\P42.Utils.csproj" />
     <ProjectReference Include="..\..\P42.Uno.Controls\P42.Utils\P42.Utils.Uno\P42.Utils.Uno.csproj" />
-    <ProjectReference Include="..\..\P42.Uno.Controls\P42.Uno.Controls\P42.Uno.Controls.csproj" />
   </ItemGroup>
 </Project>

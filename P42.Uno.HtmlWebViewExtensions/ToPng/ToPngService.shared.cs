@@ -10,12 +10,17 @@ namespace P42.Uno.HtmlWebViewExtensions
     public static class ToPngService
     {
         static INativeToPngService _nativeToPngService;
-        static INativeToPngService NativeToPngService => _nativeToPngService = _nativeToPngService ?? new NativeToPngService();
+        static INativeToPngService NativeToPngService =>
+#if __IOS__ || __ANDROID__ || NETFX_CORE
+            _nativeToPngService = _nativeToPngService ?? new NativeToPngService();
+#else   
+            null;
+#endif
 
         /// <summary>
         /// Tests if ToPng service is available.
         /// </summary>
-        public static bool IsAvailable => NativeToPngService != null;
+        public static bool IsAvailable => NativeToPngService?.IsAvailable ?? false;
 
         /// <summary>
         /// Converts HTML text to PNG
@@ -28,7 +33,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         {
             if (width <= 0)
                 width = (int)Math.Ceiling((PageSize.Default.Width - 0.5) * 4);
-            return await NativeToPngService.ToPngAsync(html, fileName, width);
+            return await (NativeToPngService?.ToPngAsync(html, fileName, width) ?? Task.FromResult(new ToFileResult(true, "PNG Service is not implemented on this platform.")));
         }
 
         /// <summary>
@@ -42,7 +47,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         {
             if (width <= 0)
                 width = (int)Math.Ceiling((PageSize.Default.Width - (12 * 25.4)) * 4);
-            return await NativeToPngService.ToPngAsync(webView, fileName, width);
+            return await (NativeToPngService?.ToPngAsync(webView, fileName, width) ?? Task.FromResult(new ToFileResult(true, "PNG Service is not implemented on this platform.")));
         }
     }
 }

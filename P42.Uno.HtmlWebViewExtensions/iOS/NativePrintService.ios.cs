@@ -1,4 +1,4 @@
-﻿#if __IOS__
+﻿#if __IOS__ 
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,7 +52,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         /// Cans the print.
         /// </summary>
         /// <returns><c>true</c>, if print was caned, <c>false</c> otherwise.</returns>
-        public bool CanPrint()
+        public bool IsAvailable()
         {
             return UIPrintInteractionController.PrintingAvailable;
         }
@@ -75,7 +75,6 @@ namespace P42.Uno.HtmlWebViewExtensions
             if (sender is WebView webView && webView.Tag is TaskCompletionSource<bool> tcs)
             {
                 tcs.SetResult(false);
-                await P42.Uno.Controls.Toast.CreateAsync("Print Service Error", "WebView failed to navigate to provided string.  Please try again.\n\nWebErrorStatus: " + e.WebErrorStatus);
                 return;
             }
             throw new Exception("Cannot locate WebView or TaskCompletionSource for WebView.OnNavigationFailed");

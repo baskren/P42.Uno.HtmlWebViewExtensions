@@ -15,11 +15,12 @@ namespace P42.Uno.HtmlWebViewExtensions
     public class NativeToPngService : Java.Lang.Object, INativeToPngService
     {
 
+        public bool IsAvailable => true;
+
         public async Task<ToFileResult> ToPngAsync(string html, string fileName, int width)
         {
             //if (!await XamarinEssentialsExtensions.ConfirmOrRequest<Xamarin.Essentials.Permissions.StorageWrite>())
             //    return new ToFileResult(true, "Write External Stoarge permission must be granted for PNG images to be available.");
-            var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
             using (var webView = new Android.Webkit.WebView(Android.App.Application.Context))
             {
                 webView.Settings.JavaScriptEnabled = true;
@@ -29,6 +30,7 @@ namespace P42.Uno.HtmlWebViewExtensions
                 webView.SetLayerType(LayerType.Software, null);
 
                 webView.Layout(0, 0, width, width);
+                var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
                 using (var callback = new WebViewCallBack(taskCompletionSource, fileName, new PageSize { Width = width }, null, OnPageFinished))
                 {
                     webView.SetWebViewClient(callback);
@@ -42,7 +44,6 @@ namespace P42.Uno.HtmlWebViewExtensions
         {
             //if (!await XamarinEssentialsExtensions.ConfirmOrRequest<Xamarin.Essentials.Permissions.StorageWrite>())
             //    return new ToFileResult(true, "Write External Stoarge permission must be granted for PNG images to be available.");
-            var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
             if (unoWebView.GetNativeWebView() is Android.Webkit.WebView droidWebView)
             {
                 droidWebView.SetLayerType(LayerType.Software, null);
@@ -51,14 +52,14 @@ namespace P42.Uno.HtmlWebViewExtensions
                 droidWebView.DrawingCacheEnabled = true;
                 droidWebView.BuildDrawingCache();
 #pragma warning restore CS0618 // Type or member is obsolete
+                var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
                 using (var callback = new WebViewCallBack(taskCompletionSource, fileName, new PageSize { Width = width }, null, OnPageFinished))
                 {
-                    droidWebView.Tag = callback;
                     droidWebView.SetWebViewClient(callback);
                     return await taskCompletionSource.Task;
                 }
             }
-            return null;
+            return await Task.FromResult(new ToFileResult(true, "Could not get NativeWebView for Uno WebView"));
         }
 
 
