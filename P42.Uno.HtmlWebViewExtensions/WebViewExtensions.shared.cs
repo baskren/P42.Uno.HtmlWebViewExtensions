@@ -14,11 +14,5 @@ namespace P42.Uno.HtmlWebViewExtensions
             return result;
         }
 
-        public static string GetSourceAsHtml(this Windows.UI.Xaml.Controls.WebView unoWebView)
-        {
-            var result = unoWebView.InvokeScript("eval", new string[] { "document.documentElement.outerHTML" });
-            return result;
-        }
-
     }
 }
