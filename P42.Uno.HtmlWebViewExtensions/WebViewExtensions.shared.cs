@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
-    public static class WebViewExtensions
+    public static partial class WebViewExtensions
     {
         public static async Task<string> GetSourceAsHtmlAsync(this Windows.UI.Xaml.Controls.WebView unoWebView)
         {

@@ -8,9 +8,9 @@ using Xamarin.Essentials;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
-    static class WebViewExtensions
+    public static partial class WebViewExtensions
     {
-        public static async Task<SizeI> WebViewContentSizeAsync(this Windows.UI.Xaml.Controls.WebView webView, int depth = 0, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+        internal static async Task<SizeI> WebViewContentSizeAsync(this Windows.UI.Xaml.Controls.WebView webView, int depth = 0, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
         {
             /*
             if (webView is null)
