@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Graphics.Printing;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -16,7 +17,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         WebView _sourceWebView;
         string Html;
         string BaseUrl;
-        string Url;
+        Uri Uri;
 
         const string LocalScheme = "ms-appx-web:///";
         const string BaseInsertionScript = @"
@@ -39,140 +40,175 @@ if(bases.length == 0){
                 BaseUrl = LocalScheme;
         }
 
-        internal WebViewPrintHelper(string url, string jobName) : base(jobName)
+        internal WebViewPrintHelper(Uri uri, string jobName) : base(jobName)
         {
-            Url = url;
+            Uri = uri;
         }
 
         int instanceCount = 0;
 
+        TaskCompletionSource<bool> NavigationCompleteTCS;
         public override async Task InitAsync()
         {
+            NavigationCompleteTCS = new TaskCompletionSource<bool>();
 
-            _webView = new WebView
+            PrintContent = _webView = new WebView
             {
                 Name = "PrintWebView" + (instanceCount++).ToString("D3"),
                 DefaultBackgroundColor = Windows.UI.Colors.White,
                 Visibility = Visibility.Visible,
+                Opacity = 0.0,
             };
-            RootPanel.Children.Insert(0, _webView);
-            PrintContent = _webView;
-            _webView.NavigationCompleted += _webView_NavigationCompleted; ;
+            _webView.NavigationCompleted += _webView_NavigationCompletedA;
+            PrintSpinner = new Grid
+            {
+                Background = new SolidColorBrush(Color.FromArgb(100,0,0,0)),
+                Children =
+                        {
+                            new ProgressRing
+                            {
+                                IsActive = true,
+                                Foreground = new SolidColorBrush(Colors.Blue),
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                VerticalAlignment = VerticalAlignment.Center
+                            }
+                        }
+            };
+            if (RootPanel is Grid grid)
+            {
+                Grid.SetRowSpan(_webView, grid.RowDefinitions.Count);
+                Grid.SetColumnSpan(_webView, grid.ColumnDefinitions.Count);
+                Grid.SetRowSpan(PrintSpinner, grid.RowDefinitions.Count);
+                Grid.SetColumnSpan(PrintSpinner, grid.ColumnDefinitions.Count);
+            }
+            RootPanel.Children.Add(PrintContent);
+            RootPanel.Children.Add(PrintSpinner);
+            await Task.Delay(50);
 
             if (_sourceWebView!=null)
             {
-                var contentSize = await _sourceWebView.WebViewContentSizeAsync();
-                _webView.Width = contentSize.Width;
-                _webView.Height = contentSize.Height;
                 Html = await _sourceWebView.GetHtml();
                 _webView.NavigateToString(Html);
             }
-            else if (!string.IsNullOrWhiteSpace(Html))
+            else if (Uri is Uri uri && !string.IsNullOrWhiteSpace(uri.AbsolutePath))
             {
-                _webView.Width = 96 * 8;
-                _webView.Height = 96 * 10.5;
-                var baseTag = $"<base href=\"{BaseUrl}\"></base>";
-                string htmlWithBaseTag;
-                var internalWebView = new Windows.UI.Xaml.Controls.WebView();
-                internalWebView.NavigationCompleted += async (sender, args) =>
-                {
-                    var script = BaseInsertionScript.Replace("baseTag", baseTag);
-                    await sender.InvokeScriptAsync("eval", new[] { script });
-                    htmlWithBaseTag = await sender.InvokeScriptAsync("eval", new[] { "document.documentElement.outerHTML;" });
-                    _webView.NavigateToString(!string.IsNullOrEmpty(htmlWithBaseTag) ? htmlWithBaseTag : Html);
-                };
-                internalWebView.NavigateToString(Html);
-            }
-            else if (!string.IsNullOrWhiteSpace(Url))
-            {
-                _webView.Width = 96 * 8;
-                _webView.Height = 96 * 10.5;
-                Uri uri = new Uri(Url, UriKind.RelativeOrAbsolute);
                 if (!uri.IsAbsoluteUri)
-                    uri = new Uri(LocalScheme + Url, UriKind.RelativeOrAbsolute);
+                    uri = new Uri(LocalScheme + Uri, UriKind.RelativeOrAbsolute);
                 _webView.Source = uri;
             }
+
+            await NavigationCompleteTCS.Task;
+
+            var kids1 = RootPanel.Children.ToArray();
+            System.Diagnostics.Debug.WriteLine("WebViewPrintHelper.");
+
+            await PrintManager.ShowPrintUIAsync();
+
+            var kids2 = RootPanel.Children.ToArray();
+            System.Diagnostics.Debug.WriteLine("WebViewPrintHelper.");
         }
 
-        private void _webView_NavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args)
+        async void _webView_NavigationCompletedA(WebView sender, WebViewNavigationCompletedEventArgs args)
         {
-       
-            PrintCanvas.Children.Add(new TextBlock { Text = "THIS IS A TEST" });
-            PrintCanvas.InvalidateMeasure();
-            PrintCanvas.UpdateLayout();
-        }
-
-        protected override async Task<IEnumerable<UIElement>> GeneratePagesAsync(PrintPageDescription pageDescription)
-            => await GenerateWebViewPagesAsync(pageDescription.PageSize);
-        
-
-        async Task<IEnumerable<UIElement>> GenerateWebViewPagesAsync(Windows.Foundation.Size paperSize)
-        {
-            System.Diagnostics.Debug.WriteLine("GenerateWebViewPagesAsync: {" + paperSize.Width + "," +paperSize.Height+ "}" );
+            _webView.NavigationCompleted -= _webView_NavigationCompletedA;
+            _webView.NavigationCompleted += _webView_NavigationCompletedB;
             var contentSize = await _webView.WebViewContentSizeAsync();
             _webView.Width = contentSize.Width;
             _webView.Height = contentSize.Height;
 
-            var printArea = new Windows.Foundation.Size(paperSize.Width * (1 - 2 * ApplicationContentMarginLeft), paperSize.Height * (1 - 2 * ApplicationContentMarginTop));
+            PrintCanvas.InvalidateMeasure();
+            PrintCanvas.UpdateLayout();
+
+
+            await Task.Delay(50);
+
+            var kids = RootPanel.Children.ToArray();
+            System.Diagnostics.Debug.WriteLine("WebViewPrintHelper.");
+
+            _webView.Refresh();
+        }
+
+        async void _webView_NavigationCompletedB(WebView sender, WebViewNavigationCompletedEventArgs args)
+        {
+            _webView.NavigationCompleted -= _webView_NavigationCompletedB;
+
+            await Task.Delay(50);
+
+            var kids = RootPanel.Children.ToArray();
+            System.Diagnostics.Debug.WriteLine("WebViewPrintHelper.");
+
+            NavigationCompleteTCS.TrySetResult(true);
+        }
+
+        
+        protected override async Task<IEnumerable<UIElement>> GeneratePagesAsync(PrintPageDescription pageDescription)
+        {
+            var contentSize = await _webView.WebViewContentSizeAsync();
+
+
+            System.Diagnostics.Debug.WriteLine("WebViewPrintHelper.GenerateWebViewPagesAsync: contentSize[" + contentSize + "]  ImageableRect[" + pageDescription.ImageableRect + "]");
 
             // how many pages will there be?
-            var scale = printArea.Width / contentSize.Width;
-            var scaledHeight = contentSize.Height * scale;
-            var pageCount = scaledHeight / printArea.Height;
-            pageCount += (pageCount > (int)pageCount) ? 1 : 0;
+            var imagingWidth = Math.Min(pageDescription.ImageableRect.Width, pageDescription.PageSize.Width * (1 - 2 * ApplicationContentMarginLeft));
+            var imagingHeight = Math.Min(pageDescription.ImageableRect.Height, pageDescription.PageSize.Height * (1 - 2 * ApplicationContentMarginTop));
+
+            var scaledHeight = imagingWidth * contentSize.Height / contentSize.Width;
+            var pageCount = Math.Ceiling(scaledHeight / imagingHeight);
 
             // create the pages
             var pages = new List<UIElement>();
             for (int i = 0; i < (int)pageCount; i++)
             {
-                var panel = GenerateWebViewPanel(paperSize, i);
+                var panel = GenerateWebViewPanel(pageDescription, i, imagingWidth, imagingHeight);
                 pages.Add(panel);
             }
-
             return pages;
+            
         }
 
 
-        UIElement GenerateWebViewPanel(Windows.Foundation.Size paperSize, int pageNumber)
+        UIElement GenerateWebViewPanel(PrintPageDescription pageDescription, int pageNumber, double imagingWidth, double imagingHeight)
         {
-            var printArea = new Windows.Foundation.Size(paperSize.Width * (1 - 2 * ApplicationContentMarginLeft), paperSize.Height * (1 - 2 * ApplicationContentMarginTop));
+            System.Diagnostics.Debug.WriteLine("WebViewPrintHelper.GenerateWebViewPanel: [" + pageNumber + "] Size:[" + pageDescription.PageSize + "]");
 
-            var scale = printArea.Width / _webView.Width;
-            var scaledHeight = _webView.Height * scale;
+            int sizeCompletedCount = 0;
 
-            var translateY = -printArea.Height * pageNumber;
+            var translateY = -imagingHeight * pageNumber;
 
             var rect = new Windows.UI.Xaml.Shapes.Rectangle
             {
                 Tag = new TranslateTransform { Y = translateY },
-                Margin = new Windows.UI.Xaml.Thickness(ApplicationContentMarginLeft * paperSize.Width, ApplicationContentMarginTop * paperSize.Height, ApplicationContentMarginLeft * paperSize.Width, ApplicationContentMarginTop * paperSize.Height),
+                Height = imagingHeight,
+                Width = imagingWidth,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
             };
+            
             var panel = new Windows.UI.Xaml.Controls.Grid
             {
-                Height = paperSize.Height,
-                Width = paperSize.Width,
+                Height = pageDescription.PageSize.Height,
+                Width = pageDescription.PageSize.Width,
                 Children = { rect },
             };
-
+            
             rect.Loaded += (s, e) =>
             {
-                var sRect = s as Windows.UI.Xaml.Shapes.Rectangle;
-                System.Diagnostics.Debug.WriteLine("rect.Loaded: rect: {" + sRect.Width + "," +sRect.Height+ "}  e: " + e.OriginalSource?.ToString());
                 var brush = new WebViewBrush
                 {
-                    SourceName = _webView.Name,
                     Stretch = Stretch.Uniform,
                 };
+                brush.SetSource(_webView);
                 brush.Redraw();
                 brush.Stretch = Stretch.UniformToFill;
                 brush.AlignmentY = AlignmentY.Top;
                 brush.Transform = rect.Tag as TranslateTransform;
                 rect.Fill = brush;
+                sizeCompletedCount++;
             };
             rect.Visibility = Visibility.Visible;
             return panel;
         }
 
-
+        
     }
 }

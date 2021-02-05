@@ -15,9 +15,11 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         public static string FolderPath()
         {
-            P42.Utils.DirectoryExtensions.AssureExists(P42.Utils.Environment.TemporaryStoragePath);
-            var root = Path.Combine(P42.Utils.Environment.TemporaryStoragePath, LocalStorageFolderName);
-            P42.Utils.DirectoryExtensions.AssureExists(root);
+            if (!Directory.Exists(System.IO.Path.GetTempPath()))
+                Directory.CreateDirectory(System.IO.Path.GetTempPath());
+            var root = Path.Combine(System.IO.Path.GetTempPath(), LocalStorageFolderName);
+            if (!Directory.Exists(root))
+                Directory.CreateDirectory(root);
             return root;
         }
 

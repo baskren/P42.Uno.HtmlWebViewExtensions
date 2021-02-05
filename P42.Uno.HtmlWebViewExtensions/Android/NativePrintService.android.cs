@@ -1,7 +1,5 @@
 ﻿#if __ANDROID__
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
@@ -9,9 +7,8 @@ using Android.OS;
 using Android.Print;
 using Android.Views;
 using P42.Uno.HtmlWebViewExtensions.Droid;
-using Windows.UI.Xaml;
+using Uno.UI;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
@@ -24,7 +21,7 @@ namespace P42.Uno.HtmlWebViewExtensions
             if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
             {
                 var context = Android.App.Application.Context;
-                if (unoWebView.GetNativeWebView() is Android.Webkit.WebView droidWebView)
+                if (unoWebView.GetChildren(v => v is Android.Webkit.WebView).FirstOrDefault() is Android.Webkit.WebView droidWebView)
                 {
                     droidWebView.Settings.JavaScriptEnabled = true;
                     droidWebView.Settings.DomStorageEnabled = true;
@@ -34,7 +31,7 @@ namespace P42.Uno.HtmlWebViewExtensions
                     if (string.IsNullOrWhiteSpace(jobName))
                         jobName = unoWebView.DocumentTitle;
                     if (string.IsNullOrWhiteSpace(jobName))
-                        jobName = P42.Utils.Uno.AppInfo.Name;
+                        jobName = AppInfo.Name;
                     var printMgr = (PrintManager)context.GetSystemService(Context.PrintService);
                     printMgr.Print(jobName, droidWebView.CreatePrintDocumentAdapter(jobName), null);
                 }
@@ -71,7 +68,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         static async Task OnPageFinishedAsync(Android.Webkit.WebView webView, string jobName, PageSize pageSize, PageMargin margin, TaskCompletionSource<ToFileResult> taskCompletionSource)
         {
             if (string.IsNullOrWhiteSpace(jobName))
-                jobName = P42.Utils.Uno.AppInfo.Name;
+                jobName = AppInfo.Name;
             var printMgr = (PrintManager)Android.App.Application.Context.GetSystemService(Context.PrintService);
             await Task.Delay(1000); // allow a bit more time for the layout to complete ... there has to be a better way to do this!?!?;
             printMgr.Print(jobName, webView.CreatePrintDocumentAdapter(jobName), null);

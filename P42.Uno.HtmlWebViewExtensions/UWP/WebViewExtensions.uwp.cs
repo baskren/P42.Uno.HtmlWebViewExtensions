@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Xamarin.Essentials;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
@@ -27,14 +26,14 @@ namespace P42.Uno.HtmlWebViewExtensions
             if (depth > 0)
                 await Task.Delay(100);
 
-            var line = P42.Utils.ReflectionExtensions.CallerLineNumber();
+            var line = 29;
             try
             {
-                line = P42.Utils.ReflectionExtensions.CallerLineNumber();
+                line = 32;
                 var widthString = await webView.InvokeScriptAsync("eval", new[] { "document.body.scrollWidth.toString()" });
-                line = P42.Utils.ReflectionExtensions.CallerLineNumber();
+                line = 34;
                 int.TryParse(widthString, out contentWidth);
-                line = P42.Utils.ReflectionExtensions.CallerLineNumber();
+                line = 36;
 
                 System.Diagnostics.Debug.WriteLine("elementHeight = " + webView.Height);
 
@@ -45,11 +44,11 @@ namespace P42.Uno.HtmlWebViewExtensions
                 //var heightString = await webView.InvokeScriptAsync("eval", new[] { "document.documentElement.getBoundingClientRect().height.toString()" });
                 //var heightString = await webView.InvokeScriptAsync("eval", new[] { "self.innerHeight.toString()" });
                 //var heightString = await webView.InvokeScriptAsync("eval", new[] { "document.body.offsetHeight.toString()" });
-                line = P42.Utils.ReflectionExtensions.CallerLineNumber();
+                line = 47;
                 var heightString = await webView.InvokeScriptAsync("eval", new[] { "Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight ).toString()" });//, document.documentElement.offsetHeight ).toString()" });
-                line = P42.Utils.ReflectionExtensions.CallerLineNumber();
+                line = 49;
                 int.TryParse(heightString, out contentHeight);
-                line = P42.Utils.ReflectionExtensions.CallerLineNumber();
+                line = 51;
 
             }
             catch (Exception e)

@@ -1,10 +1,13 @@
-﻿#if __IOS__ || __MACOS__
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+#if __IOS__
 using UIKit;
+#else
+using AppKit;
+#endif
 using WebKit;
 
 namespace P42.Uno.HtmlWebViewExtensions
@@ -18,9 +21,11 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         public static string FolderPath()
         {
-            P42.Utils.DirectoryExtensions.AssureExists(P42.Utils.Environment.TemporaryStoragePath);
-            var root = Path.Combine(P42.Utils.Environment.TemporaryStoragePath, LocalStorageFolderName);
-            P42.Utils.DirectoryExtensions.AssureExists(root);
+            if (!Directory.Exists(System.IO.Path.GetTempPath()))
+                Directory.CreateDirectory(System.IO.Path.GetTempPath());
+            var root = Path.Combine(System.IO.Path.GetTempPath(), LocalStorageFolderName);
+            if (!Directory.Exists(root))
+                Directory.CreateDirectory(root);
             return root;
         }
 
@@ -30,7 +35,11 @@ namespace P42.Uno.HtmlWebViewExtensions
             Directory.Delete(path, true);
         }
 
+#if __IOS__
         public bool IsAvailable => UIPrintInteractionController.PrintingAvailable && NSProcessInfo.ProcessInfo.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(11, 0, 0));
+#else
+        public bool IsAvailable => true;
+#endif
 
         public async Task<ToFileResult> ToPngAsync(string html, string fileName, int width)
         {
@@ -48,8 +57,10 @@ namespace P42.Uno.HtmlWebViewExtensions
                     };
                     using (var webView = new WKWebView(new CGRect(0, 0, width, width), configuration)
                     {
+#if __IOS__
                         UserInteractionEnabled = false,
                         BackgroundColor = UIColor.White
+#endif
                     })
                     {
                         webView.NavigationDelegate = new WKNavigationCompleteCallback(fileName, new PageSize { Width = width }, null, taskCompletionSource, NavigationCompleteAsync);
@@ -66,10 +77,12 @@ namespace P42.Uno.HtmlWebViewExtensions
             if (NSProcessInfo.ProcessInfo.IsOperatingSystemAtLeastVersion(new NSOperatingSystemVersion(11, 0, 0)))
             {
                 var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
-                if (unoWebView.GetNativeWebView() is Windows.UI.Xaml.Controls.NativeWebView wkWebView)
+                if (unoWebView.GetNativeWebView() is Windows.UI.Xaml.Controls.UnoWKWebView wkWebView)
                 {
+#if __IOS__
                     wkWebView.BackgroundColor = UIColor.White;
                     wkWebView.UserInteractionEnabled = false;
+#endif
                     wkWebView.NavigationDelegate = new WKNavigationCompleteCallback(fileName, new PageSize { Width = wkWebView.Bounds.Width, Height = wkWebView.Bounds.Height }, null, taskCompletionSource, NavigationCompleteAsync);
                     return await taskCompletionSource.Task;
                 }
@@ -94,19 +107,26 @@ namespace P42.Uno.HtmlWebViewExtensions
                     taskCompletionSource.SetResult(new ToFileResult(true, "WebView has zero width or height"));
                     return;
                 }
-
+#if __IOS__
                 webView.ClipsToBounds = false;
                 webView.ScrollView.ClipsToBounds = false;
-
+#endif
                 var bounds = webView.Bounds;
                 webView.Bounds = new CGRect(0, 0, (nfloat)width, (nfloat)height);
 
                 var scale = pageSize.Width / width;
 
+#if __IOS__
+                var displayScale = UIScreen.MainScreen.Scale;
+#else
+                var mainScreen = NSScreen.MainScreen;
+                var displayScale = mainScreen.BackingScaleFactor;
+#endif
+
 
                 var snapshotConfig = new WKSnapshotConfiguration
                 {
-                    SnapshotWidth = pageSize.Width / Xamarin.Essentials.DeviceDisplay.MainDisplayInfo.Density
+                    SnapshotWidth = pageSize.Width / displayScale
                 };
 
                 var image = await webView.TakeSnapshotAsync(snapshotConfig);
@@ -165,14 +185,11 @@ namespace P42.Uno.HtmlWebViewExtensions
         public override void DidFinishNavigation(WKWebView webView, WKNavigation navigation)
         {
             loadCount--;
-            P42.Utils.Timer.StartTimer(TimeSpan.FromMilliseconds(100), () =>
+            Timer.StartTimer(TimeSpan.FromMilliseconds(100), () =>
             {
                 if (loadCount <= 0)
                 {
-                    Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        _action?.Invoke(webView, _filename, _pageSize, _margin, _taskCompletionSource);
-                    });
+                    NSRunLoop.Main.BeginInvokeOnMainThread(() => _action?.Invoke(webView, _filename, _pageSize, _margin, _taskCompletionSource));
                     return false;
                 }
                 return true;
@@ -181,4 +198,3 @@ namespace P42.Uno.HtmlWebViewExtensions
         }
     }
 }
-#endif

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Graphics.Printing;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -26,63 +27,38 @@ namespace P42.Uno.HtmlWebViewExtensions
 			return PrintManager.IsSupported();
 		}
 
-		public Task PrintAsync(WebView webView, string jobName)
+		TaskCompletionSource<bool> _printingTCS;
+		public async Task PrintAsync(WebView webView, string jobName)
 		{
-			Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(async () =>
-			{
-				if (string.IsNullOrWhiteSpace(jobName))
-					jobName = P42.Utils.Uno.AppInfo.Name;
-				WebViewPrintHelper printHelper = null;
-				var properties = new Dictionary<string, string>
-				{
-					{ "class", "Forms9Patch.UWP.PrintService" },
-					{ "method", nameof(PrintAsync) },
-				};
-				//try
-				//{
-					/*
-					if (webView.Source is HtmlWebViewSource htmlSource && !string.IsNullOrWhiteSpace(htmlSource.Html))
-					{
-						properties["line"] = "47";
-						printHelper = new WebViewPrintHelper(htmlSource.Html, htmlSource.BaseUrl, jobName);
-					}
-					else if (webView.Source is UrlWebViewSource urlSource && !string.IsNullOrWhiteSpace(urlSource.Url))
-					{
-						properties["line"] = "53";
-						printHelper = new WebViewPrintHelper(urlSource.Url, jobName);
-					}
-					else if (webView is Windows.UI.Xaml.Controls.WebView nativeWebView)
-					{
-					*/
-					properties["line"] = "57";
-					printHelper = new WebViewPrintHelper(webView, jobName);
-					//}
-				//}
-				//catch (Exception e)
-				//{
-					//await P42.Uno.Controls.Toast.CreateAsync("Print Service Error", "Could not initiate print WebViewPrintHelper.  Please try again.\n\nException: " + e.Message + "\n\nInnerException: " + e.InnerException);
-						// Analytics.TrackException?.Invoke(e, properties);
-				//}
+			if (_printingTCS != null)
+				return;
 
+			_printingTCS = new TaskCompletionSource<bool>();
+			MainThread.BeginInvokeOnMainThread(async () =>
+			{
+
+				if (string.IsNullOrWhiteSpace(jobName))
+					jobName = Windows.ApplicationModel.Package.Current.DisplayName;
+				WebViewPrintHelper printHelper = null;
+				if (webView.Source is Uri Uri && !string.IsNullOrWhiteSpace(Uri.AbsolutePath))
+                {
+					printHelper = new WebViewPrintHelper(Uri, jobName);
+                }
+				else if (webView is Windows.UI.Xaml.Controls.WebView nativeWebView)
+				{
+					printHelper = new WebViewPrintHelper(webView, jobName);
+				}
 				if (printHelper != null)
 				{
-					//try
-					//{
-						properties["line"] = "71";
-						printHelper.RegisterForPrinting();
-						properties["line"] = "73";
-						await printHelper.InitAsync();
-						properties["line"] = "75";
-						var showprint = await PrintManager.ShowPrintUIAsync();
-					//}
-					//catch (Exception e)
-					//{
-						//await P42.Uno.Controls.Toast.CreateAsync("Print Service Error", "Could not Show Print UI Async.  Please try again.\n\nException: " + e.Message + "\n\nInnerException: " + e.InnerException);
-						//Analytics.TrackException?.Invoke(e, properties);
-					//}
+					await Task.Delay(50);
+					printHelper.RegisterForPrinting();
+					await printHelper.InitAsync();
 				}
+				_printingTCS?.TrySetResult(true);
 			});
-			return Task.CompletedTask;
+			await _printingTCS.Task;
+
+			_printingTCS = null;
 		}
 
 
@@ -100,7 +76,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 				await PrintAsync(webView, jobName);
 		}
 
-        static async void OnNavigationFailed(object sender, WebViewNavigationFailedEventArgs e)
+        static void OnNavigationFailed(object sender, WebViewNavigationFailedEventArgs e)
         {
             if (sender is WebView webView && webView.Tag is TaskCompletionSource<bool> tcs)
             {

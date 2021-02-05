@@ -37,7 +37,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 		public async Task<ToFileResult> ToPngAsync(string html, string fileName, int width)
 		{
 			var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
-			Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(async () =>
+			MainThread.BeginInvokeOnMainThread(async () =>
 			{
 				var webView = new Windows.UI.Xaml.Controls.WebView(WebViewExecutionMode.SameThread)
 				{
@@ -76,11 +76,11 @@ namespace P42.Uno.HtmlWebViewExtensions
 		public async Task<ToFileResult> ToPngAsync(WebView unoWebView, string fileName, int width)
 		{
 			var taskCompletionSource = new TaskCompletionSource<ToFileResult>();
-			Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(async () =>
+			MainThread.BeginInvokeOnMainThread(async () =>
 			{
 				var contentSize = await unoWebView.WebViewContentSizeAsync();
 				System.Diagnostics.Debug.WriteLine("A contentSize=[" + contentSize + "]");
-				System.Diagnostics.Debug.WriteLine("A webView.Size=[" + unoWebView.Width + "," + unoWebView.Height + "] IsOnMainThread=[" + P42.Utils.Environment.IsOnMainThread + "]");
+				System.Diagnostics.Debug.WriteLine("A webView.Size=[" + unoWebView.Width + "," + unoWebView.Height + "] IsOnMainThread=[" + MainThread.IsMainThread + "]");
 
 				unoWebView.SetValue(BeforeWidthProperty, contentSize.Width);
 				unoWebView.SetValue(BeforeHeightProperty, contentSize.Height);
@@ -114,7 +114,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 			webView.NavigationCompleted -= NavigationCompleteAAsync;
 			var contentSize = await webView.WebViewContentSizeAsync();
 			System.Diagnostics.Debug.WriteLine("A contentSize=[" + contentSize + "]");
-			System.Diagnostics.Debug.WriteLine("A webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + P42.Utils.Environment.IsOnMainThread + "]");
+			System.Diagnostics.Debug.WriteLine("A webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + MainThread.IsMainThread + "]");
 
 			var width = (int)webView.GetValue(PngWidthProperty);
 			webView.Width = width;
@@ -133,7 +133,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 
 			using (InMemoryRandomAccessStream ms = new InMemoryRandomAccessStream())
 			{
-				System.Diagnostics.Debug.WriteLine("B webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + P42.Utils.Environment.IsOnMainThread + "]");
+				System.Diagnostics.Debug.WriteLine("B webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + MainThread.IsMainThread + "]");
 				try
 				{
 					var width = (int)webView.GetValue(PngWidthProperty);
@@ -141,16 +141,16 @@ namespace P42.Uno.HtmlWebViewExtensions
 
 					var contentSize = await webView.WebViewContentSizeAsync();
 					System.Diagnostics.Debug.WriteLine("B contentSize=[" + contentSize + "]");
-					System.Diagnostics.Debug.WriteLine("B webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + P42.Utils.Environment.IsOnMainThread + "]");
+					System.Diagnostics.Debug.WriteLine("B webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + MainThread.IsMainThread + "]");
 
 					if (contentSize.Height != webView.Height || width != webView.Width)
 					{
 						webView.Width = contentSize.Width;
 						webView.Height = contentSize.Height;
-						System.Diagnostics.Debug.WriteLine("B webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + P42.Utils.Environment.IsOnMainThread + "]");
+						System.Diagnostics.Debug.WriteLine("B webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + MainThread.IsMainThread + "]");
 
 						webView.InvalidateMeasure();
-						System.Diagnostics.Debug.WriteLine("B webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + P42.Utils.Environment.IsOnMainThread + "]");
+						System.Diagnostics.Debug.WriteLine("B webView.Size=[" + webView.Width + "," + webView.Height + "] IsOnMainThread=[" + MainThread.IsMainThread + "]");
 					}
 
 					await webView.CapturePreviewToStreamAsync(ms);
@@ -212,7 +212,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 			{
 				if (webView.GetValue(ToFileResultProperty) is ToFileResult result)
 				{
-					System.Diagnostics.Debug.WriteLine(GetType() + "." + P42.Utils.ReflectionExtensions.CallerMemberName() + ": Complete[" + result.Result + "]");
+					System.Diagnostics.Debug.WriteLine(GetType() + ".NavigationCompleteC: Complete[" + result.Result + "]");
 					onComplete.SetResult(result);
 				}
 				else

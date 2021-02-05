@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Graphics.Printing;
 using Windows.Graphics.Printing.OptionDetails;
@@ -12,6 +13,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 {
     public class PrintHelper
     {
+        const string CanvasName = "P42.Uno.HtmlWebViewExtensions.PrintCanvas";
         /// <summary>
         /// The percent of app's margin width, content is set at 85% (0.85) of the area's width
         /// </summary>
@@ -69,10 +71,10 @@ namespace P42.Uno.HtmlWebViewExtensions
         {
             get
             {
-                if (RootPage.FindName("Forms9PatchPrintCanvas") is Canvas canvas)
+                if (RootPage.FindName(CanvasName) is Canvas canvas)
                     return canvas;
-                RootPanel?.Children.Insert(0, new Canvas { Opacity = 0.0, Name = "Forms9PatchPrintCanvas" });
-                return RootPage.FindName("Forms9PatchPrintCanvas") as Canvas;
+                RootPanel?.Children.Insert(0, new Canvas { Opacity = 0.0, Name = CanvasName });
+                return RootPage.FindName(CanvasName) as Canvas;
             }
         }
 
@@ -83,6 +85,8 @@ namespace P42.Uno.HtmlWebViewExtensions
             {
                 var rootFrame = Window.Current.Content as Windows.UI.Xaml.Controls.Frame;
                 var page = rootFrame?.Content as Windows.UI.Xaml.Controls.Page;
+                var panel = page?.Content as Panel;
+                var children = panel.Children.ToList();
                 return page;
             }
         }
@@ -90,6 +94,8 @@ namespace P42.Uno.HtmlWebViewExtensions
         internal static Windows.UI.Xaml.Controls.Panel RootPanel => RootPage?.Content as Panel;
 
         protected UIElement PrintContent;
+
+        protected Grid PrintSpinner;
 
         /// <summary>
         /// Constructor
@@ -133,7 +139,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         /// </summary>
         public virtual void UnregisterForPrinting()
         {
-            Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(() =>
+            MainThread.BeginInvokeOnMainThread(() =>
             {
                 if (printDocument != null)
                 {
@@ -151,9 +157,10 @@ namespace P42.Uno.HtmlWebViewExtensions
                     PrintCanvas.Children.Clear();
                     RootPanel?.Children.Remove(PrintCanvas);
                 }
-
                 if (PrintContent != null)
                     RootPanel?.Children.Remove(PrintContent);
+                if (PrintSpinner != null)
+                    RootPanel?.Children.Remove(PrintSpinner);
             });
         }
 
@@ -251,7 +258,7 @@ namespace P42.Uno.HtmlWebViewExtensions
                 // Print Task event handler is invoked when the print job is completed.
                 printTask.Completed += (s, args) =>
                 {
-                    Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(async() =>
+                    MainThread.BeginInvokeOnMainThread(async() =>
                     {
                         // Notify the user when the print operation fails.
                         //if (args.Completion == PrintTaskCompletion.Failed)
@@ -324,7 +331,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 
             if (invalidatePreview)
             {
-                Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(() =>
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
                     printDocument.InvalidatePreview();
                 });

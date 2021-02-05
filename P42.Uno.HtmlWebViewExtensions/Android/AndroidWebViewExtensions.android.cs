@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Android.Runtime;
+using Android.Views;
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -18,7 +20,8 @@ namespace P42.Uno.HtmlWebViewExtensions
             var method = webView.GetType().GetMethod("ComputeVerticalScrollRange", BindingFlags.NonPublic | BindingFlags.Instance);
             var height = (int)method.Invoke(webView, new object[] { });
 
-            return (int)(height / Xamarin.Essentials.DeviceDisplay.MainDisplayInfo.Density) + webView.MeasuredHeight;
+
+            return (int)(height / Display.Scale) + webView.MeasuredHeight;
         }
 
         public static async Task<Java.Lang.Object> EvaluateJavaScriptAsync(this Android.Webkit.WebView webView, string script)
@@ -28,7 +31,6 @@ namespace P42.Uno.HtmlWebViewExtensions
                 return await evaluator.TaskCompletionSource.Task;
             }
         }
-
     }
 
     class JavaScriptEvaluator : Java.Lang.Object, Android.Webkit.IValueCallback

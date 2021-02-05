@@ -12,6 +12,8 @@ using Java.Lang;
 using Java.Interop;
 using P42.Uno.HtmlWebViewExtensions.Droid;
 using P42.Uno.HtmlWebViewExtensions;
+using Uno.UI;
+using System.Linq;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
@@ -22,8 +24,6 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         public async Task<ToFileResult> ToPdfAsync(string html, string fileName, PageSize pageSize, PageMargin margin)
         {
-            //if (!await XamarinEssentialsExtensions.ConfirmOrRequest<Xamarin.Essentials.Permissions.StorageWrite>())
-            //    return new ToFileResult(true, "Write External Stoarge permission must be granted for PNG images to be available.");
             using (var droidWebView = new Android.Webkit.WebView(Android.App.Application.Context))
             {
                 droidWebView.Settings.JavaScriptEnabled = true;
@@ -45,9 +45,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         public async Task<ToFileResult> ToPdfAsync(Windows.UI.Xaml.Controls.WebView unoWebView, string fileName, PageSize pageSize, PageMargin margin)
         {
-            //if (!await XamarinEssentialsExtensions.ConfirmOrRequest<Xamarin.Essentials.Permissions.StorageWrite>())
-            //    return new ToFileResult(true, "Write External Stoarge permission must be granted for PNG images to be available.");
-            if (unoWebView.GetNativeWebView() is Android.Webkit.WebView droidWebView)
+            if (unoWebView.GetChildren(v => v is Android.Webkit.WebView).FirstOrDefault() is Android.Webkit.WebView droidWebView)
             {
                 droidWebView.SetLayerType(LayerType.Software, null);
                 droidWebView.Settings.JavaScriptEnabled = true;

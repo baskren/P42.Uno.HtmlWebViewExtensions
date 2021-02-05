@@ -70,8 +70,4 @@
     <EmbeddedResource Include="WasmScripts\html2canvas.min.js" />
     <EmbeddedResource Include="WasmScripts\UnoPng.js" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\P42.Uno.Controls\P42.Utils\P42.Utils\P42.Utils.csproj" />
-    <ProjectReference Include="..\..\P42.Uno.Controls\P42.Utils\P42.Utils.Uno\P42.Utils.Uno.csproj" />
-  </ItemGroup>
 </Project>

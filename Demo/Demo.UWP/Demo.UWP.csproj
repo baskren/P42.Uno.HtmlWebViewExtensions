@@ -10,7 +10,7 @@
 			-->
       <Version>6.2.9</Version>
     </PackageReference>
-    <PackageReference Include="Uno.Core" Version="2.0.0" />
+    <PackageReference Include="Uno.Core" Version="2.1.0" />
     <PackageReference Include="Uno.UI" Version="3.4.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Filter" Version="1.1.1" />
@@ -18,7 +18,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>5fd59525-3806-46e1-84dd-63c32bffce30</ProjectGuid>
+    <ProjectGuid>{5FD59525-3806-46E1-84DD-63C32BFFCE30}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Demo</RootNamespace>
@@ -127,6 +127,14 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <ProjectReference Include="..\..\P42.Uno.HtmlWebViewExtensions\P42.Uno.HtmlWebViewExtensions.csproj">
+      <Project>{e244872a-a5ad-4995-b5fd-0a8ff5463595}</Project>
+      <Name>P42.Uno.HtmlWebViewExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\P42.Uno.Xamarin.Essentials\Xamarin.Essentials\P42.Uno.Xamarin.Essentials.csproj">
+      <Project>{c1942f23-2d8f-4eca-a208-7cead48dffc3}</Project>
+      <Name>P42.Uno.Xamarin.Essentials</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

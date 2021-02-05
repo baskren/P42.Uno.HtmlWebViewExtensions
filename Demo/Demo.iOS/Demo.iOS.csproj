@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
-    <ProjectGuid>46f35095-12d6-4960-aa4f-7e2d7cd3981f</ProjectGuid>
+    <ProjectGuid>{46F35095-12D6-4960-AA4F-7E2D7CD3981F}</ProjectGuid>
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
     <RootNamespace>Demo</RootNamespace>
@@ -149,10 +149,16 @@
       <Visible>false</Visible>
     </ImageAsset>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Media" Visible="false" />
-    <Folder Include="Media\AppIcons" Visible="false" />
-    <Folder Include="Media\LaunchImages" Visible="false" />
+    <ProjectReference Include="..\..\P42.Uno.HtmlWebViewExtensions\P42.Uno.HtmlWebViewExtensions.csproj">
+      <Project>{e244872a-a5ad-4995-b5fd-0a8ff5463595}</Project>
+      <Name>P42.Uno.HtmlWebViewExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\P42.Uno.Xamarin.Essentials\Xamarin.Essentials\P42.Uno.Xamarin.Essentials.csproj">
+      <Project>{c1942f23-2d8f-4eca-a208-7cead48dffc3}</Project>
+      <Name>P42.Uno.Xamarin.Essentials</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\Demo.Shared\Demo.Shared.projitems" Label="Shared" Condition="Exists('..\Demo.Shared\Demo.Shared.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

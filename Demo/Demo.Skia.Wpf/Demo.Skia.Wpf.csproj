@@ -13,5 +13,9 @@
   <ItemGroup>
     <UpToDateCheckInput Include="..\Demo.Shared\**\*.xaml" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\P42.Uno.HtmlWebViewExtensions\P42.Uno.HtmlWebViewExtensions.csproj" />
+    <ProjectReference Include="..\..\P42.Uno.Xamarin.Essentials\Xamarin.Essentials\P42.Uno.Xamarin.Essentials.csproj" />
+  </ItemGroup>
   <Import Project="..\Demo.Shared\Demo.Shared.projitems" Label="Shared" />
 </Project>

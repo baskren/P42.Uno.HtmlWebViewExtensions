@@ -9,6 +9,8 @@ using Windows.UI.Xaml.Controls;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
+    // Just in case this doesn't work for MacOS, take a look at:
+    // https://stackoverflow.com/questions/33319295/how-does-one-print-all-wkwebview-on-and-offscreen-content-osx-and-ios
 
     /// <summary>
     /// Web view extensions service.
@@ -42,7 +44,7 @@ namespace P42.Uno.HtmlWebViewExtensions
                 printController.PrintFormatter = new UIMarkupTextPrintFormatter(html);
                 printController.Present(true, (printInteractionController, completed, error) =>
                 {
-                    System.Diagnostics.Debug.WriteLine(GetType() + "." + P42.Utils.ReflectionExtensions.CallerMemberName() + ": PRESENTED completed[" + completed + "] error[" + error + "]");
+                    System.Diagnostics.Debug.WriteLine(GetType() + ".PrintAsync: PRESENTED completed[" + completed + "] error[" + error + "]");
                 });
             }
 

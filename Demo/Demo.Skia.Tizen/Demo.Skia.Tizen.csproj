@@ -25,5 +25,8 @@
     <PackageReference Include="Uno.UI.Skia.Tizen" Version="3.4.0" />
     <PackageReference Include="Uno.UI.RemoteControl" Version="3.4.0" Condition="'$(Configuration)'=='Debug'" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\P42.Uno.HtmlWebViewExtensions\P42.Uno.HtmlWebViewExtensions.csproj" />
+  </ItemGroup>
   <Import Project="..\Demo.Shared\Demo.Shared.projitems" Label="Shared" />
 </Project>

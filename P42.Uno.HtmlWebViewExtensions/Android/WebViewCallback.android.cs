@@ -1,4 +1,5 @@
 ﻿using Android.Graphics;
+using Android.OS;
 using Android.Views;
 using System;
 using System.Threading.Tasks;
@@ -7,6 +8,8 @@ namespace P42.Uno.HtmlWebViewExtensions.Droid
 {
     class WebViewCallBack : Android.Webkit.WebViewClient
     {
+        static volatile Handler handler;
+
         bool _complete;
         readonly string _fileName;
         readonly PageSize _pageSize;
@@ -25,21 +28,20 @@ namespace P42.Uno.HtmlWebViewExtensions.Droid
 
         public override void OnPageStarted(Android.Webkit.WebView view, string url, Bitmap favicon)
         {
-            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + P42.Utils.ReflectionExtensions.CallerString() + ": ");
+            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + "OnPageStarted: ");
             base.OnPageStarted(view, url, favicon);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0165:Asynchronous methods should return a Task instead of void", Justification = "Needed to invoke async code on main thread.")]
         public override void OnPageFinished(Android.Webkit.WebView view, string url)
         {
-            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + P42.Utils.ReflectionExtensions.CallerString() + ": SUCCESS!");
+            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack)  + "OnPageFinished: SUCCESS!");
             if (!_complete)
             {
                 _complete = true;
-
-                Xamarin.Essentials.MainThread.BeginInvokeOnMainThread(() =>
+                MainThread.BeginInvokeOnMainThread(() => 
                 {
-                    _onPageFinished?.Invoke(view, _fileName, _pageSize, _margin, _taskCompletionSource);
+                    _onPageFinished?.Invoke(view, _fileName, _pageSize, _margin, _taskCompletionSource); 
                 });
             }
         }
@@ -58,15 +60,15 @@ namespace P42.Uno.HtmlWebViewExtensions.Droid
 
         public override bool OnRenderProcessGone(Android.Webkit.WebView view, Android.Webkit.RenderProcessGoneDetail detail)
         {
-            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + P42.Utils.ReflectionExtensions.CallerString() + ": ");
+            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + "OnRenderProcessGone: ");
             return base.OnRenderProcessGone(view, detail);
         }
 
         public override void OnLoadResource(Android.Webkit.WebView view, string url)
         {
-            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + P42.Utils.ReflectionExtensions.CallerString() + ": ");
+            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + "OnLoadResource: ");
             base.OnLoadResource(view, url);
-            P42.Utils.Timer.StartTimer(TimeSpan.FromSeconds(10), () =>
+            Timer.StartTimer(TimeSpan.FromSeconds(10), () =>
             {
                 if (!_complete)
                     OnPageFinished(view, url);
@@ -76,19 +78,19 @@ namespace P42.Uno.HtmlWebViewExtensions.Droid
 
         public override void OnPageCommitVisible(Android.Webkit.WebView view, string url)
         {
-            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + P42.Utils.ReflectionExtensions.CallerString() + ": ");
+            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + "OnPageCommitVisible: ");
             base.OnPageCommitVisible(view, url);
         }
 
         public override void OnUnhandledKeyEvent(Android.Webkit.WebView view, KeyEvent e)
         {
-            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + P42.Utils.ReflectionExtensions.CallerString() + ": ");
+            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + "OnUnhandledKeyEvent: ");
             base.OnUnhandledKeyEvent(view, e);
         }
 
         public override void OnUnhandledInputEvent(Android.Webkit.WebView view, InputEvent e)
         {
-            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + P42.Utils.ReflectionExtensions.CallerString() + ": ");
+            System.Diagnostics.Debug.WriteLine(nameof(WebViewCallBack) + "OnUnhandledInputEvent: ");
             base.OnUnhandledInputEvent(view, e);
         }
     }

@@ -8,6 +8,8 @@ using Android.Runtime;
 using Android.OS;
 using Android.Content;
 using P42.Uno.HtmlWebViewExtensions.Droid;
+using Uno.UI;
+using System.Linq;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
@@ -19,8 +21,6 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         public async Task<ToFileResult> ToPngAsync(string html, string fileName, int width)
         {
-            //if (!await XamarinEssentialsExtensions.ConfirmOrRequest<Xamarin.Essentials.Permissions.StorageWrite>())
-            //    return new ToFileResult(true, "Write External Stoarge permission must be granted for PNG images to be available.");
             using (var webView = new Android.Webkit.WebView(Android.App.Application.Context))
             {
                 webView.Settings.JavaScriptEnabled = true;
@@ -42,9 +42,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         public async Task<ToFileResult> ToPngAsync(Windows.UI.Xaml.Controls.WebView unoWebView, string fileName, int width)
         {
-            //if (!await XamarinEssentialsExtensions.ConfirmOrRequest<Xamarin.Essentials.Permissions.StorageWrite>())
-            //    return new ToFileResult(true, "Write External Stoarge permission must be granted for PNG images to be available.");
-            if (unoWebView.GetNativeWebView() is Android.Webkit.WebView droidWebView)
+            if (unoWebView.GetChildren(v => v is Android.Webkit.WebView).FirstOrDefault() is Android.Webkit.WebView droidWebView)
             {
                 droidWebView.SetLayerType(LayerType.Software, null);
                 droidWebView.Settings.JavaScriptEnabled = true;
@@ -56,6 +54,15 @@ namespace P42.Uno.HtmlWebViewExtensions
                 using (var callback = new WebViewCallBack(taskCompletionSource, fileName, new PageSize { Width = width }, null, OnPageFinished))
                 {
                     droidWebView.SetWebViewClient(callback);
+
+                    Android.Widget.FrameLayout.LayoutParams tmpParams = new Android.Widget.FrameLayout.LayoutParams(width, width);
+                    droidWebView.LayoutParameters = tmpParams;
+                    droidWebView.Layout(0, 0, width, width);
+                    int specWidth = MeasureSpecFactory.MakeMeasureSpec((int)(width * Display.Scale), MeasureSpecMode.Exactly);
+                    int specHeight = MeasureSpecFactory.MakeMeasureSpec(0, MeasureSpecMode.Unspecified);
+                    droidWebView.Measure(specWidth, specHeight);
+                    droidWebView.Layout(0, 0, droidWebView.MeasuredWidth, droidWebView.MeasuredHeight);
+
                     return await taskCompletionSource.Task;
                 }
             }

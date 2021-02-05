@@ -27,6 +27,7 @@ namespace P42.Uno.HtmlWebViewExtensions
             {
 
             }
+            return null;
         }
     }
 }
