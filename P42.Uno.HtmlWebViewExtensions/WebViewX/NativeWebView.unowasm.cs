@@ -6,27 +6,19 @@ using Uno.UI.Runtime.WebAssembly;
 using Uno.Foundation;
 using System.Net.Http;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
     [HtmlElement("iframe")]
     public partial class NativeWebView : FrameworkElement
     {
-        /*
-        static string OnLoadScript(int index)
+        static readonly Guid SessionGuid = Guid.NewGuid();
+
+        static NativeWebView()
         {
-            return $"$console.log('UnoWebView_OnLoad: {index}, this.contentWindow.location);" +
-            "const OnCurrentWindowLocationChanged = Module.mono_bind_static_method(\"[P42.Uno.HtmlWebViewExtensions] P42.Uno.HtmlWebViewExtensions.NativeWebView:OnCurrentWindowLocationChanged\");" +
-            $"OnCurrentWindowLocationChanged('{index}', location);";
+            WebAssemblyRuntime.InvokeJS($"sessionStorage.setItem('Uno.WebView.Session','{SessionGuid}');");
         }
-        */
-
-        static string OnLoadScript(int index)
-        {
-            return $"";
-        }
-
-
 
         static Dictionary<string, WeakReference<NativeWebView>> Instances = new Dictionary<string, WeakReference<NativeWebView>>();
 
@@ -48,7 +40,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 
                 nativeWebView._loaded = true;
                 nativeWebView.UpdateFromInternalSource();
-                //nativeWebView.ClearCssStyle("pointer-events");
+                nativeWebView.ClearCssStyle("pointer-events");
                 /*
                 System.Diagnostics.Debug.WriteLine($"NativeWebView.OnFrameLoaded src=[{nativeWebView.GetHtmlAttribute("src")}]");
                 System.Diagnostics.Debug.WriteLine("NativeWebView.GetLocation(): " + nativeWebView.GetLocation());
@@ -58,7 +50,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         }
 
         static string _webViewBridgeScript;
-        static string WebViewBridgeScript
+        internal static string WebViewBridgeScript
         {
             get
             {
@@ -77,6 +69,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         }
 
         public readonly string Id;
+        readonly Guid InstanceGuid;
 
         private object _internalSource;
         private bool _loaded;
@@ -85,13 +78,18 @@ namespace P42.Uno.HtmlWebViewExtensions
         {
             System.Diagnostics.Debug.WriteLine("NativeWebView..ctr");
             //var script = OnLoadScript(IndexOfInstance(this));
+            InstanceGuid = Guid.NewGuid();
             Id = this.GetHtmlAttribute("id");
             System.Diagnostics.Debug.WriteLine("NativeWebView.ctr id=" + Id);
             Instances.Add(Id, new WeakReference<NativeWebView>(this));
             this.SetCssStyle("border", "none");
-            this.ClearCssStyle("pointer-events");
+            //this.ClearCssStyle("pointer-events");  // doesn't seem to work here as it seems to get reset by Uno during layout.
             this.SetHtmlAttribute("onLoad", $"UnoWebView_OnLoad('{Id}')");
-            this.SetHtmlAttribute("srcdoc", $"<script>{WebViewBridgeScript}</script>");
+            this.SetHtmlAttribute("srcdoc", "<script>"+
+                $"sessionStorage.setItem('Uno.WebView.Session','{SessionGuid}');"+
+                $"sessionStorage.setItem('Uno.WebView.Instance','{InstanceGuid}');" +
+                WebViewBridgeScript + 
+                "</script>");
             //System.Diagnostics.Debug.WriteLine($"NativeWebView.ctr script=[{WebViewBridgeScript}]");
             //System.Diagnostics.Debug.WriteLine("NativeWebView..ctr script=["+script+"]");
             //this.SetHtmlAttribute("onLoad", script);
@@ -112,7 +110,22 @@ namespace P42.Uno.HtmlWebViewExtensions
             => WebAssemblyRuntime.InvokeJS(new Message<Uri>(Id, uri));
 
         void NavigateToText(string text)
-            => WebAssemblyRuntime.InvokeJS(new Message<string>(Id, text));
+        {
+            /*
+            var valueBytes = Encoding.UTF8.GetBytes(text);
+            var base64 = Convert.ToBase64String(valueBytes);
+            WebAssemblyRuntime.InvokeJS(new Message<string>(Id, base64));
+            */
+
+            if (!Directory.Exists("/tmp"))
+                Directory.CreateDirectory("/tmp");
+            var folder = Path.Combine("/tmp", InstanceGuid.ToString());
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+            var filePath = Path.Combine(folder, Guid.NewGuid().ToString()+".html");
+            File.WriteAllText(filePath, text);
+            var uri = new Uri("file://" + filePath);
+        }
 
         void NavigateWithHttpRequestMessage(HttpRequestMessage message)
         {
@@ -174,21 +187,23 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         class Message
         {
-            //public string Type => GetType().Name;
+            public string Session { get; private set; }
 
             public string Method { get; private set; }
 
+            [JsonIgnore]
             public string Id { get; private set; }
 
             public Message(string id, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
             {
+                Session = SessionGuid.ToString();
                 Id = id;
                 Method = callerName;
             }
 
-            public override string ToString() => Newtonsoft.Json.JsonConvert.SerializeObject(this);
+            public override string ToString() => JsonConvert.SerializeObject(this);
 
-            public static implicit operator string(Message m) => $"UnoWebView_PostMessage('{m.ToString()}');";
+            public static implicit operator string(Message m) => $"UnoWebView_PostMessage('{m.Id}','{m}');";
 
         }
 

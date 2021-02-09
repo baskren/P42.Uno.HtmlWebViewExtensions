@@ -32,8 +32,8 @@ namespace Demo
     {
         WebView _webView = new WebView
         {
-            //Source = new Uri("https://platform.uno")
-            Source = new Uri("https://slashdot.org")
+           // Source = new Uri("https://platform.uno")
+           // Source = new Uri("https://slashdot.org")
         };
 
         public MainPage()
@@ -50,7 +50,6 @@ namespace Demo
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            //_webView.Navigate(new Uri("https://platform.uno"));
             _toPngButton.IsEnabled = true;
         }
 
@@ -76,23 +75,19 @@ namespace Demo
             HideSpinner();
             */
 
-            //_webView.Navigate(new Uri("https://platform.uno"));
-
-            WebClient client = new WebClient();
             var resources = GetType().Assembly.GetManifestResourceNames();
-            foreach (var resource in resources)
-                System.Diagnostics.Debug.WriteLine("\t " + resource);
-            using (var stream = GetType().Assembly.GetManifestResourceStream("Demo.Wasm.Resources.platform.uno.txt"))
+            using (var stream = GetType().Assembly.GetManifestResourceStream("Demo.Wasm.Resources.platform.uno.html"))
             {
                 using (var reader = new StreamReader(stream))
                 {
                     var text = await reader.ReadToEndAsync();
-                    _webView.NavigateToString(text);
+                    _webView.WasmBridgeNavigateToString(text);
+                    //_webView.NavigateToString(text);
                 }
             }
+            //WebClient client = new WebClient();
             //var html = client.DownloadString("https://platform.uno");
             //_webView.NavigateToString(html); 
-            
         }
 
         async void OnToPdfClicked(object sender, RoutedEventArgs e)
@@ -122,7 +117,17 @@ namespace Demo
             /*
             await _webView.PrintAsync("WebView PrintJob");
             */
-            _webView.Navigate(new Uri("https://slashdot.org"));
+            //_webView.Navigate(new Uri("https://platform.uno"));
+            var resources = GetType().Assembly.GetManifestResourceNames();
+            using (var stream = GetType().Assembly.GetManifestResourceStream("Demo.Wasm.Resources.slashdot.html"))
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    var text = await reader.ReadToEndAsync();
+                    _webView.WasmBridgeNavigateToString(text);
+                    //_webView.NavigateToString(text);
+                }
+            }
         }
 
         Grid _spinner;

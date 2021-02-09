@@ -113,19 +113,6 @@ namespace P42.Uno.HtmlWebViewExtensions
 
 		partial void NavigateToStringPartial(string text)
         {
-			using (var stream = typeof(P42.Uno.HtmlWebViewExtensions.NativePrintService).Assembly.GetManifestResourceStream("P42.Uno.HtmlWebViewExtensions.WasmScripts.UnoWebViewBridge.js.txt"))
-			{
-				using (var reader = new StreamReader(stream))
-				{
-					var script = reader.ReadToEnd();
-					text = text.Replace("<head>", "<head><script>" 
-						+ script 
-						+"</script>");
-					System.Diagnostics.Debug.WriteLine("WebViewX.NavigateToStringPartial: script=[" + script + "]");
-				}
-			}
-            System.Diagnostics.Debug.WriteLine("WebViewX.NavigateToStringPartial");
-			//_nativeWebView.SetHtmlAttribute("srcdoc", text);
 			_nativeWebView.SetInternalSource(text);
 		}
 

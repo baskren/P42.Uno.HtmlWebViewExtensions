@@ -35,6 +35,9 @@
     <PRIResource Include="$(MSBuildThisFileDirectory)Strings\en\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\platform.uno.txt" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\platform.uno.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\slashdot.html" />
   </ItemGroup>
 </Project>

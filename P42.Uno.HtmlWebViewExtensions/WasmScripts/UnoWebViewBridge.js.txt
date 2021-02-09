@@ -1,43 +1,45 @@
 ﻿
-function UnoWebViewBridge_PostMessage(message) {
-    console.log('UnoWebViewBridge_PostMessage: message: ' + message);
+function UnoWebViewBridge_PostMessage(payload) {
+    let obj = new Object();
+    obj.Session = sessionStorage.getItem('Uno.WebView.Session');
+    obj.Instance = sessionStorage.getItem('Uno.WebView.Instance');
+    obj.Payload = payload;
+    let message = JSON.stringify(obj);
+    console.log("UnoWebViewBridge_PostMessage: message: " + message);
     window.parent.postMessage(message, "*");
 }
 
 function UnoWebViewBridge_ReceiveMessage(event) {
     console.log("UnoWebViewBridge_ReceiveMessage: event.data: " + event.data);
+    if (event.data.Session == sessionStorage.getItem('Uno.WebView.Session')) {
+        if (event.data.Method == 'Navigate')
+        {
+            UnoWebViewBridge_Assign(event.data.Payload);
+        }
+        else if (event.data.Method == 'NavigateToText')
+        {
+            var newsrc = 'data:text/html;charset=utf-8;base64,' + event.data.Payload;
+            console.log('UnoWebViewBridge_ReceiveMessage NavigateToText newsrc=' + newsrc);
+            window.location.assign(newsrc);
+            //document.write(atob(event.data.Payload));
+        }
+    }
 }
 
 function UnoWebViewBridge_Initiate() {
 
     const currentWindowOnLoad = window.onload;
     window.onload = function () {
-        UnoWebViewBridge_PostMessage('{"id":' + sessionStorage.getItem('NativeWebViewId') + ', "message":"C"}');
         if (currentWindowOnLoad !== undefined && currentWindowOnLoad !== null)
             currentWindowOnLoad();
 
         window.addEventListener("message", UnoWebViewBridge_ReceiveMessage, false);
-
-        //window.addEventListener("message", (event) => {
-        //    console.log("UnoWebViewBridge_initiate: message received: " + event.data);
-        //
-        //    //PostMessage(event.data);
-        //}, false);
-        
-        let obj = new Object();
-        obj.tag = "onloaded";
-        obj.location = window.location;
-        obj.referrer = document.referrer;
-        
-        UnoWebViewBridge_PostMessage(JSON.stringify(obj));
         
         console.log("history.length: " + window.history.length);
         console.log("history.state: " + window.history.state);
 
-        UnoWebViewBridge_PostMessage('{"id":' + sessionStorage.getItem('NativeWebViewId') + ', "message":"D"}');
         console.log("UnoWebViewBridge_initiate: window.onLoad: EXIT");
     }
-    UnoWebViewBridge_PostMessage('{"id":' + sessionStorage.getItem('NativeWebViewId') + ', "message":"A"}');
     console.log("UnoWebViewBridge_initiate: EXIT");
 }
 
@@ -59,7 +61,5 @@ function UnoWebViewBridge_GoForward() {
 }
 
 UnoWebViewBridge_Initiate();
-
-UnoWebViewBridge_PostMessage('{"id":' + sessionStorage.getItem('NativeWebViewId') + ', "message":"B"}');
 console.log("UnoWebBridge EXIT");
 

@@ -1,16 +1,17 @@
 ﻿
-function UnoWebView_PostMessage(message) {
-    console.log('UnoWebView_PostMessage: ' + message);
+function UnoWebView_PostMessage(id, message) {
+    console.log('UnoWebView_PostMessage[' + id + ']: ' + message);
     let m = JSON.parse(message);
-    console.log('message.id: ' + m.Id);
-    let target = document.getElementById(m.Id);
-    target.contentWindow.postMessage(message);
-    console.log('UnoWebView_PostMessage EXIT');
+    let target = document.getElementById(id);
+    target.contentWindow.postMessage(m, "*");
+    //window.postMessage(m, "*");
 }
 
 function UnoWebView_SetMessageListener() {
     window.addEventListener("message", (event) => {
-        console.log("UnoWebView: message received: " + event.data);
+        if (event.data.Session == sessionStorage.getItem('Uno.WebView.Session')) {
+            console.log("UnoWebView: message received: " + event.data);
+        }
     }, false);
 }
 
