@@ -1,509 +1,500 @@
-<!-- html-header type=current begin -->
+﻿<!-- html-header type=current begin -->
 	
 	<!DOCTYPE html>
 	
 	
 	<html lang="en">
 	<head>
-	<!-- Render IE9 -->
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<script src="https://raw.githubusercontent.com/baskren/P42.Uno.HtmlWebViewExtensions/WebViewX/P42.Uno.HtmlWebViewExtensions/WasmScripts/UnoWebViewBridge.js.txt"></script>
+		<!-- Render IE9 -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-	
 
-	<script id="before-content" type="text/javascript">
-(function () {
-    if (typeof window.sdmedia !== 'object') {
-         window.sdmedia = {};
-    }
-    if (typeof window.sdmedia.site !== 'object') {
-        window.sdmedia.site = {};
-    }
 
-    var site = window.sdmedia.site;
-    site.rootdir = "//slashdot.org";
-}());
+		<script id="before-content" type="text/javascript">
+			(function () {
+				if (typeof window.sdmedia !== 'object') {
+					window.sdmedia = {};
+				}
+				if (typeof window.sdmedia.site !== 'object') {
+					window.sdmedia.site = {};
+				}
 
-var pageload = {
-	pagemark: '261130938507997626',
-	before_content: (new Date).getTime()
-};
-function pageload_done( $, console, maybe ){
-	pageload.after_readycode	= (new Date).getTime();
-	pageload.content_ready_time	= pageload.content_ready - pageload.before_content;
-	pageload.script_ready_time	= pageload.after_readycode - pageload.content_ready;
-	pageload.ready_time		= pageload.after_readycode - pageload.before_content;
-	// Only report 1% of cases.
-	maybe || (Math.random()>0.01) || $.ajax({ data: {
-		op: 'page_profile',
-		pagemark: pageload.pagemark,
-		dom: pageload.content_ready_time,
-		js: pageload.script_ready_time
-	} });
-}
-</script>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
-	
+				var site = window.sdmedia.site;
+				site.rootdir = "//slashdot.org";
+			}());
+
+			var pageload = {
+				pagemark: '261130938507997626',
+				before_content: (new Date).getTime()
+			};
+			function pageload_done($, console, maybe) {
+				pageload.after_readycode = (new Date).getTime();
+				pageload.content_ready_time = pageload.content_ready - pageload.before_content;
+				pageload.script_ready_time = pageload.after_readycode - pageload.content_ready;
+				pageload.ready_time = pageload.after_readycode - pageload.before_content;
+				// Only report 1% of cases.
+				maybe || (Math.random() > 0.01) || $.ajax({
+					data: {
+						op: 'page_profile',
+						pagemark: pageload.pagemark,
+						dom: pageload.content_ready_time,
+						js: pageload.script_ready_time
+					}
+				});
+			}
+		</script>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
 		<title>Slashdot: News for nerds, stuff that matters</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	  
+
 		<meta name="description" content="Slashdot: News for nerds, stuff that matters. Timely news source for technology related news with a heavy slant towards Linux and Open Source issues.">
-	    
+
 		<meta property="og:title" content="Slashdot: News for nerds, stuff that matters">
 		<meta property="og:description" content="Slashdot: News for nerds, stuff that matters. Timely news source for technology related news with a heavy slant towards Linux and Open Source issues.">
-	  
-	
-	
+
+
+
 		<meta property="fb:admins" content="100000696822412">
 		<meta property="fb:page_id" content="267995220856">
-	
+
 		<meta name="viewport" content="width=1000, user-scalable=yes, minimum-scale=0, maximum-scale=10.0" />
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
-	
+
 		<link rel="canonical" href="https://slashdot.org">
-		
-		<link rel="alternate" media="only screen and (max-width: 640px)" href="http://m.slashdot.org" >
-	
+
+		<link rel="alternate" media="only screen and (max-width: 640px)" href="http://m.slashdot.org">
+
 
 		<!--[if IE 8]><link rel="stylesheet" type="text/css" media="screen, projection" href="//a.fsdn.com/sd/ie8-classic.ssl.css?a2aa91913b32072a" ><![endif]-->
-		<link rel="stylesheet" type="text/css" media="screen, projection" href="//a.fsdn.com/sd/classic.ssl.css?a2aa91913b32072a" >
+		<link rel="stylesheet" type="text/css" media="screen, projection" href="//a.fsdn.com/sd/classic.ssl.css?a2aa91913b32072a">
 		<!--[if IE 7]><link rel="stylesheet" type="text/css" media="screen, projection" href="//a.fsdn.com/sd/ie7-classic.ssl.css?a2aa91913b32072a" ><![endif]-->
-	
-	
-	
+		<!--  -->
+		<!-- SMACKS: NEW CSS -->
+		<link rel="stylesheet" href="//a.fsdn.com/sd/css/app.css?a2aa91913b32072a">
 
-
-
-	
-	<!--  -->
-
-	
-	
-
-	
-	<!-- SMACKS: NEW CSS -->
-	<link rel="stylesheet" href="//a.fsdn.com/sd/css/app.css?a2aa91913b32072a">
-
-	<script src="//a.fsdn.com/con/js/sftheme/cmp5.js"></script>
-	<script src="https://slashdot.org/country.js"></script>
-	<script>
-		if (window.is_euro_union === 1 || (window.region == 'CA' && window.country_code2 == 'US')) {
-			window.bizx.cmp.init({cmp_id: 12126}, 'consentmanager.net');
-		}
-	</script>
-	<script src="https://a.fsdn.com/con/js/sftheme/vendor/promise.polyfill.min.js"></script>
-	<link rel="stylesheet" href="//a.fsdn.com/con/css/sftheme/sandiego/cmp.css?2020-06-11" type="text/css">
-
-	<script type='text/javascript'>
-var _gaq = _gaq || [];
-</script>
-
-
-
-
-
-   
-   
-   
-
-<script type="text/javascript" id="pbjs_script" data-dom="https://d3tglifpd8whs6.cloudfront.net"  src="https://d3tglifpd8whs6.cloudfront.net/js/prebid/slash-homepage/slash-homepage.min.js"></script>
-<script type='text/javascript'>
-    /*global performance */
-    var googletag = window.googletag || {};
-    googletag.cmd = googletag.cmd || [];
-
-    	window.SD = {};
-		window.SD.Ads = {};
-
-		window.SD.Ads.slotsById = {};
-		window.SD.Ads.idsByPath = {};
-
-		window.SD.Ads.visibleTime = {};
-		window.SD.Ads.Helpers = {};
-
-		//window.SD = SD;
-
-    bizx.cmp.ifConsent('', ['all','google-ads'], function(){
-        window.bizxPrebid.Ads.initPrebid(window.bizxPrebid.adUnits);
-    });
-</script>
-
-<!-- prep GPT ads -->
-<script type='text/javascript'>
-(function() {
-	function page_type (loc) {
-		/*
-		only four page types:
-		- Story
-		- Poll
-		- Homepage (/ only)
-		- Other (but AdOps wants 'Homepage' again)
-		*/
-		var path = loc.pathname;
-		var just_the_root = /^\/?$/.test(path);
-		var story_or_poll = /^\/(story(?=\/)|submission(?=\/)|poll(?=\/|Booth|s\b))/i.exec(path);
-
-		var page_type = just_the_root ? 'homepage'
-			: story_or_poll ? story_or_poll[1]
-				: 'other'
-
-		// exceptions
-		if (page_type.toLowerCase() === 'submission')
-			page_type = 'story'; // submissions are like stories, right?
-		else if (page_type.toLowerCase() === 'other')
-			page_type = 'homepage'; // this one might move out of here
-
-		return page_type;
-	}
-
-	function page_section(loc) {
-		//var greek = ['alpha', 'beta', 'gamma', 'delta'].join('|');
-		//var hostwise = '^([a-z]+)(?:-(?:'+greek+'))?\\.(?:slashdot\\.org|\\.xb\\.sf\\.net)$';
-		var pathwise = '^/(?:(recent|popular|blog)|stories/([^/]+))';
-		var rootwise = '^\/?$';
-
-		//var hostwisely = new RegExp(hostwise,'i').exec(loc.hostname);
-		var pathwisely = new RegExp(pathwise, 'i').exec(loc.pathname);
-		var rootwisely = new RegExp(rootwise, 'i').exec(loc.pathname);
-
-		var section = (rootwisely && 'homepage')
-			|| (pathwisely && (pathwisely[1] || pathwisely[2]))
-			|| ''
-		;
-
-		return section.replace(/[^_a-z]/ig, '');
-	}
-
-	function single_size(size) {
-		return '' + size[0] + 'x' + size[1];
-	}
-
-	function sz_sz(sz) {
-		var str = '';
-		var sizes = [];
-		if (sz[0] instanceof Array) {
-			for (size in sz) {
-				sizes.push(single_size(sz[size]));
+		<script src="//a.fsdn.com/con/js/sftheme/cmp5.js"></script>
+		<script src="https://slashdot.org/country.js"></script>
+		<script>
+			if (window.is_euro_union === 1 || (window.region == 'CA' && window.country_code2 == 'US')) {
+				window.bizx.cmp.init({ cmp_id: 12126 }, 'consentmanager.net');
 			}
-			return sizes.join(',');
-		} else {
-			return single_size(sz);
-		}
-	}
+		</script>
+		<script src="https://a.fsdn.com/con/js/sftheme/vendor/promise.polyfill.min.js"></script>
+		<link rel="stylesheet" href="//a.fsdn.com/con/css/sftheme/sandiego/cmp.css?2020-06-11" type="text/css">
 
-	function unique_tpc_array(array1, array2) {
-		var j = array1.concat(array2);
-		j.forEach(function (v, i, a) {
-			a[i] = v.replace(/[^_a-z]/ig, '');
-		});
-		return j.filter(function (v, i, a) {
-			return v != '' && a.indexOf(v) === i;
-		});
-	}
+		<script type='text/javascript'>
+			var _gaq = _gaq || [];
+		</script>
 
-	/* LEGEND:
-		- 'sz' = "size"
-		- 'npt' = "no page type" in ad unit name
-	*/
-	var tags = {
-		'728x90_A': {'sz': [[728, 90], [970, 90], [970, 250], [980, 66]]},
-		'728x90_B': {'sz': [728, 90]},
-		'728x90_C': {'sz': [728, 90], 'skip': {'homepage': 1}},
-		'HubIcon_200x90_A': {'sz': [[200, 90], [220, 90]]},
-		'PowerSwitch_980x66_A': {'sz': [980, 66], 'skip': {'homepage': 1}},
-		'PollPeel': {'sz': [200, 90], 'skip': {'homepage': 1}},
-		//'VideoWidget_300x250': { 'sz': [300, 250], 'npt': 1 },
-		'300x250_A': {'sz': [[300, 250], [300, 600], [300, 1050]]},
-		'300x250_B': {'sz': [[300, 250], [300, 600]]},
-		'300x250_C': {'sz': [[300, 250], [300, 600]]},
-		'300x250_D': {'sz': [[300, 250], [300, 600]]},
-		'Pulse_300x600_A': {'sz': [300, 600]},
-		//'Polls_Detail_300x250_A': { 'sz': [[300, 250], [300, 600]], 'npt': 1 },
-		//'Poll_300x250_A': { 'sz': [[300, 250], [300, 600]], 'npt': 1 },
-		//'SD_Story_1x1': { 'sz': [1, 1] },
-		'1x1': {'sz': [1, 1]}
-	};
 
-	//var network_path = '/41014381/Slashdot/';
-	var network_path = '/41014381/Slashdot/';
-	var tag_name_prefix = 'SD';
-	var tag_name_linkage = '_';
-	var tag_name_pagetype = page_type(location);
-	var tag_topic = page_section(location);
-	if (tag_name_pagetype == 'poll') {
-		tag_name_pagetype = 'Poll';
-	}
-	var before_tag_pagetyped = network_path
-		+ tag_name_prefix
-		+ tag_name_linkage
-		+ tag_name_pagetype
-		+ tag_name_linkage
-	;
-	var before_tag_pagetypeless = network_path
-		+ tag_name_prefix
-		+ tag_name_linkage
-		/* + tag_name_pagetype */
-		/* + tag_name_linkage */
-	;
 
-		//can be safely called
-		googletag.cmd.push(function () {
 
-			function remove_sticky_top() {
-				setTimeout(function () {
-					$('#div-gpt-ad-728x90_a').parent('div').addClass('adwrap-viewed-banner');
-					$('#div-gpt-ad-728x90_a').addClass('viewableImpression');
-				}, 1000);
-			}
 
-			function remove_sticky_railad() {
-				setTimeout(function () {
-					$('#slashboxes .adwrap-unviewed').addClass('adwrap-viewed-railad');
-					$('.railad').addClass('viewableImpression');
-				}, 1000);
-			}
 
-			function viewable_imp(slot) {
-				for (var i in slot) {
-					remove_sticky_top();
-					remove_sticky_railad();
-					if (typeof slot[i] !== 'string') continue;
-					switch (slot[i]) {
-						//case "/41014381/Slashdot/SD_homepage_728x90_A":
-						//case "/41014381/Slashdot/SD_story_728x90_A":
-						//case "/41014381/Slashdot/SD_Poll_728x90_A":
-						//case "/41014381/Slashdot/SD_homepage_728x90_Ref_A":
-						//case "/41014381/Slashdot/SD_story_728x90_Ref_A":
-						//case "/41014381/Slashdot/SD_Poll_728x90_Ref_A":
-						//remove_sticky_top();
-						//break;
-						//case "/41014381/Slashdot/SD_homepage_300x250_A":
-						//case "/41014381/Slashdot/SD_story_300x250_A":
-						//case "/41014381/Slashdot/SD_Poll_300x250_A":
-						//case "/41014381/Slashdot/SD_homepage_300x250_Ref_A":
-						//case "/41014381/Slashdot/SD_story_300x250_Ref_A":
-						//case "/41014381/Slashdot/SD_Poll_300x250_Ref_A":
-						//remove_sticky_railad();
-						//break;
-					}
-					//if(slot[i] === "/41014381/Slashdot/SD_homepage_728x90_A") remove_sticky_top();
-					//if(slot[i] === "/41014381/Slashdot/SD_homepage_300x250_A") remove_sticky_railad();
+
+
+
+		<script type="text/javascript" id="pbjs_script" data-dom="https://d3tglifpd8whs6.cloudfront.net" src="https://d3tglifpd8whs6.cloudfront.net/js/prebid/slash-homepage/slash-homepage.min.js"></script>
+		<script type='text/javascript'>
+			/*global performance */
+			var googletag = window.googletag || {};
+			googletag.cmd = googletag.cmd || [];
+
+			window.SD = {};
+			window.SD.Ads = {};
+
+			window.SD.Ads.slotsById = {};
+			window.SD.Ads.idsByPath = {};
+
+			window.SD.Ads.visibleTime = {};
+			window.SD.Ads.Helpers = {};
+
+			//window.SD = SD;
+
+			bizx.cmp.ifConsent('', ['all', 'google-ads'], function () {
+				window.bizxPrebid.Ads.initPrebid(window.bizxPrebid.adUnits);
+			});
+		</script>
+
+		<!-- prep GPT ads -->
+		<script type='text/javascript'>
+			(function () {
+				function page_type(loc) {
+					/*
+					only four page types:
+					- Story
+					- Poll
+					- Homepage (/ only)
+					- Other (but AdOps wants 'Homepage' again)
+					*/
+					var path = loc.pathname;
+					var just_the_root = /^\/?$/.test(path);
+					var story_or_poll = /^\/(story(?=\/)|submission(?=\/)|poll(?=\/|Booth|s\b))/i.exec(path);
+
+					var page_type = just_the_root ? 'homepage'
+						: story_or_poll ? story_or_poll[1]
+							: 'other'
+
+					// exceptions
+					if (page_type.toLowerCase() === 'submission')
+						page_type = 'story'; // submissions are like stories, right?
+					else if (page_type.toLowerCase() === 'other')
+						page_type = 'homepage'; // this one might move out of here
+
+					return page_type;
 				}
-			}
 
-			function define_me_a_slot(tag) {
-				if (tags[tag].skip && tags[tag].skip[tag_name_pagetype])
-					return;
-				var sandbox_regex = /\.xb\.sf\.net$/i;
-				var full_name = tags[tag].npt  // "no page type"
-					? before_tag_pagetypeless + tag
-					: before_tag_pagetyped + tag
-				;
-				var div_id = 'div-gpt-ad-' + tag.toLowerCase();
-				// extend jQuery and get URL query params
-				jQuery.extend({
-					getQueryParameters: function (str) {
-						return (str || document.location.search).replace(/(^\?)/, '').split("&").map(function (n) {
-							return n = n.split("="), this[n[0]] = n[1], this
-						}.bind({}))[0];
+				function page_section(loc) {
+					//var greek = ['alpha', 'beta', 'gamma', 'delta'].join('|');
+					//var hostwise = '^([a-z]+)(?:-(?:'+greek+'))?\\.(?:slashdot\\.org|\\.xb\\.sf\\.net)$';
+					var pathwise = '^/(?:(recent|popular|blog)|stories/([^/]+))';
+					var rootwise = '^\/?$';
+
+					//var hostwisely = new RegExp(hostwise,'i').exec(loc.hostname);
+					var pathwisely = new RegExp(pathwise, 'i').exec(loc.pathname);
+					var rootwisely = new RegExp(rootwise, 'i').exec(loc.pathname);
+
+					var section = (rootwisely && 'homepage')
+						|| (pathwisely && (pathwisely[1] || pathwisely[2]))
+						|| ''
+						;
+
+					return section.replace(/[^_a-z]/ig, '');
+				}
+
+				function single_size(size) {
+					return '' + size[0] + 'x' + size[1];
+				}
+
+				function sz_sz(sz) {
+					var str = '';
+					var sizes = [];
+					if (sz[0] instanceof Array) {
+						for (size in sz) {
+							sizes.push(single_size(sz[size]));
+						}
+						return sizes.join(',');
+					} else {
+						return single_size(sz);
 					}
+				}
+
+				function unique_tpc_array(array1, array2) {
+					var j = array1.concat(array2);
+					j.forEach(function (v, i, a) {
+						a[i] = v.replace(/[^_a-z]/ig, '');
+					});
+					return j.filter(function (v, i, a) {
+						return v != '' && a.indexOf(v) === i;
+					});
+				}
+
+				/* LEGEND:
+					- 'sz' = "size"
+					- 'npt' = "no page type" in ad unit name
+				*/
+				var tags = {
+					'728x90_A': { 'sz': [[728, 90], [970, 90], [970, 250], [980, 66]] },
+					'728x90_B': { 'sz': [728, 90] },
+					'728x90_C': { 'sz': [728, 90], 'skip': { 'homepage': 1 } },
+					'HubIcon_200x90_A': { 'sz': [[200, 90], [220, 90]] },
+					'PowerSwitch_980x66_A': { 'sz': [980, 66], 'skip': { 'homepage': 1 } },
+					'PollPeel': { 'sz': [200, 90], 'skip': { 'homepage': 1 } },
+					//'VideoWidget_300x250': { 'sz': [300, 250], 'npt': 1 },
+					'300x250_A': { 'sz': [[300, 250], [300, 600], [300, 1050]] },
+					'300x250_B': { 'sz': [[300, 250], [300, 600]] },
+					'300x250_C': { 'sz': [[300, 250], [300, 600]] },
+					'300x250_D': { 'sz': [[300, 250], [300, 600]] },
+					'Pulse_300x600_A': { 'sz': [300, 600] },
+					//'Polls_Detail_300x250_A': { 'sz': [[300, 250], [300, 600]], 'npt': 1 },
+					//'Poll_300x250_A': { 'sz': [[300, 250], [300, 600]], 'npt': 1 },
+					//'SD_Story_1x1': { 'sz': [1, 1] },
+					'1x1': { 'sz': [1, 1] }
+				};
+
+				//var network_path = '/41014381/Slashdot/';
+				var network_path = '/41014381/Slashdot/';
+				var tag_name_prefix = 'SD';
+				var tag_name_linkage = '_';
+				var tag_name_pagetype = page_type(location);
+				var tag_topic = page_section(location);
+				if (tag_name_pagetype == 'poll') {
+					tag_name_pagetype = 'Poll';
+				}
+				var before_tag_pagetyped = network_path
+					+ tag_name_prefix
+					+ tag_name_linkage
+					+ tag_name_pagetype
+					+ tag_name_linkage
+					;
+				var before_tag_pagetypeless = network_path
+					+ tag_name_prefix
+					+ tag_name_linkage
+					/* + tag_name_pagetype */
+					/* + tag_name_linkage */
+					;
+
+				//can be safely called
+				googletag.cmd.push(function () {
+
+					function remove_sticky_top() {
+						setTimeout(function () {
+							$('#div-gpt-ad-728x90_a').parent('div').addClass('adwrap-viewed-banner');
+							$('#div-gpt-ad-728x90_a').addClass('viewableImpression');
+						}, 1000);
+					}
+
+					function remove_sticky_railad() {
+						setTimeout(function () {
+							$('#slashboxes .adwrap-unviewed').addClass('adwrap-viewed-railad');
+							$('.railad').addClass('viewableImpression');
+						}, 1000);
+					}
+
+					function viewable_imp(slot) {
+						for (var i in slot) {
+							remove_sticky_top();
+							remove_sticky_railad();
+							if (typeof slot[i] !== 'string') continue;
+							switch (slot[i]) {
+								//case "/41014381/Slashdot/SD_homepage_728x90_A":
+								//case "/41014381/Slashdot/SD_story_728x90_A":
+								//case "/41014381/Slashdot/SD_Poll_728x90_A":
+								//case "/41014381/Slashdot/SD_homepage_728x90_Ref_A":
+								//case "/41014381/Slashdot/SD_story_728x90_Ref_A":
+								//case "/41014381/Slashdot/SD_Poll_728x90_Ref_A":
+								//remove_sticky_top();
+								//break;
+								//case "/41014381/Slashdot/SD_homepage_300x250_A":
+								//case "/41014381/Slashdot/SD_story_300x250_A":
+								//case "/41014381/Slashdot/SD_Poll_300x250_A":
+								//case "/41014381/Slashdot/SD_homepage_300x250_Ref_A":
+								//case "/41014381/Slashdot/SD_story_300x250_Ref_A":
+								//case "/41014381/Slashdot/SD_Poll_300x250_Ref_A":
+								//remove_sticky_railad();
+								//break;
+							}
+							//if(slot[i] === "/41014381/Slashdot/SD_homepage_728x90_A") remove_sticky_top();
+							//if(slot[i] === "/41014381/Slashdot/SD_homepage_300x250_A") remove_sticky_railad();
+						}
+					}
+
+					function define_me_a_slot(tag) {
+						if (tags[tag].skip && tags[tag].skip[tag_name_pagetype])
+							return;
+						var sandbox_regex = /\.xb\.sf\.net$/i;
+						var full_name = tags[tag].npt  // "no page type"
+							? before_tag_pagetypeless + tag
+							: before_tag_pagetyped + tag
+							;
+						var div_id = 'div-gpt-ad-' + tag.toLowerCase();
+						// extend jQuery and get URL query params
+						jQuery.extend({
+							getQueryParameters: function (str) {
+								return (str || document.location.search).replace(/(^\?)/, '').split("&").map(function (n) {
+									return n = n.split("="), this[n[0]] = n[1], this
+								}.bind({}))[0];
+							}
+						});
+
+						var queryParams = $.getQueryParameters();
+
+						if (queryParams.source === 'autorefresh') {
+							full_name = full_name.replace(/(\d+x\d+)/, '$1_Ref');
+							//console.log('TAG NAME: ', full_name);
+						}
+
+						var slot = googletag.defineSlot(
+							full_name,
+							tags[tag].sz,
+							div_id
+						);
+
+						service = slot.addService(googletag.pubads());
+
+						window.SD.Ads.slotsById[div_id] = slot;
+						window.SD.Ads.idsByPath[full_name] = div_id;
+
+						service.setTargeting('sz', tags[tag].sz);
+
+
+						var frontend_tpc = tag_topic.split(",");
+						var backend_tpc = [];
+
+						var tpc_final = unique_tpc_array(frontend_tpc, backend_tpc);
+						service.setTargeting('tpc', tpc_final);
+						if (location.hostname.match(sandbox_regex)) {
+							service.setTargeting('test', 'adops');
+						}
+
+					}
+
+					for (tag in tags) {
+						define_me_a_slot(tag, false);
+					}
+
+
+					googletag.pubads().addEventListener('slotVisibilityChanged', window.SD.Ads.visibilityChangedTracker);
+
+
+					googletag.pubads().addEventListener('impressionViewable', function (event) {
+						viewable_imp(event.slot);
+					});
+
+					googletag.pubads().setTargeting('requestSource', 'GPT');
+					googletag.pubads().enableAsyncRendering();
+
+
+					googletag.pubads().collapseEmptyDivs();
+					window.bizxPrebid.SAFEFRAMES = true;
+					window.SD.Ads.setupAdRefresh();
+					bizxPrebid.Ads.pushToGoogle();
+					googletag.enableServices();
 				});
+			})();
 
-				var queryParams = $.getQueryParameters();
 
-				if (queryParams.source === 'autorefresh') {
-					full_name = full_name.replace(/(\d+x\d+)/, '$1_Ref');
-					//console.log('TAG NAME: ', full_name);
+			/* Ad-Refresh code */
+			window.SD.Ads.visibilityChangedTracker = function (event) {
+				var id = event.slot.getSlotElementId();
+				if (!window.SD.Ads.visibleTime.hasOwnProperty(id)) {
+					window.SD.Ads.visibleTime[id] = {
+						visible: false,
+						prevVisibleTotal: 0,
+						wasVisibleBeforePageBgd: false,
+						reloadCount: 0
+					};
 				}
-
-				var slot = googletag.defineSlot(
-					full_name,
-					tags[tag].sz,
-					div_id
-				);
-
-				service = slot.addService(googletag.pubads());
-
-				window.SD.Ads.slotsById[div_id] = slot;
-				window.SD.Ads.idsByPath[full_name] = div_id;
-
-				service.setTargeting('sz', tags[tag].sz);
-
-				
-				var frontend_tpc = tag_topic.split(",");
-				var backend_tpc = [  ];
-
-				var tpc_final = unique_tpc_array(frontend_tpc, backend_tpc);
-				service.setTargeting('tpc', tpc_final);
-				if (location.hostname.match(sandbox_regex)) {
-					service.setTargeting('test', 'adops');
-				}
-
-			}
-
-		for (tag in tags) {
-			define_me_a_slot(tag, false);
-		}
-
-
-			googletag.pubads().addEventListener('slotVisibilityChanged', window.SD.Ads.visibilityChangedTracker);
-
-
-		googletag.pubads().addEventListener('impressionViewable', function(event) {
-			viewable_imp(event.slot);
-		    });
-
-                googletag.pubads().setTargeting('requestSource', 'GPT');
-		googletag.pubads().enableAsyncRendering();
-		
-
-		googletag.pubads().collapseEmptyDivs();
-		window.bizxPrebid.SAFEFRAMES = true;
-		window.SD.Ads.setupAdRefresh();
-		bizxPrebid.Ads.pushToGoogle();
-		googletag.enableServices();
-	});
-})();
-
-
-/* Ad-Refresh code */
-window.SD.Ads.visibilityChangedTracker = function(event) {
-	var id = event.slot.getSlotElementId();
-	if (!window.SD.Ads.visibleTime.hasOwnProperty(id)) {
-		window.SD.Ads.visibleTime[id] = {
-			visible: false,
-			prevVisibleTotal: 0,
-			wasVisibleBeforePageBgd: false,
-			reloadCount: 0
-		};
-	}
-	var timeinfo = window.SD.Ads.visibleTime[id];
-	if (event.inViewPercentage >= 50 && !document.hidden) {
-		if (!timeinfo.visible) {
-			timeinfo.visible = performance.now();
-		}
-	} else {
-		if (timeinfo.visible) {
-			timeinfo.prevVisibleTotal += performance.now() - timeinfo.visible;
-			timeinfo.visible = false;
-		}
-	}
-};
-
-window.SD.Ads.setupAdRefresh = function() {
-	document.addEventListener('visibilitychange', function () {
-		for (var id in window.SD.Ads.visibleTime) {
-			if (window.SD.Ads.visibleTime.hasOwnProperty(id)) {
 				var timeinfo = window.SD.Ads.visibleTime[id];
-				if (document.hidden) {
-					timeinfo.wasVisibleBeforePageBgd = !!timeinfo.visible;
+				if (event.inViewPercentage >= 50 && !document.hidden) {
+					if (!timeinfo.visible) {
+						timeinfo.visible = performance.now();
+					}
+				} else {
 					if (timeinfo.visible) {
 						timeinfo.prevVisibleTotal += performance.now() - timeinfo.visible;
 						timeinfo.visible = false;
 					}
-				} else if (!document.hidden && timeinfo.wasVisibleBeforePageBgd) {
-					timeinfo.visible = performance.now();
 				}
-			}
-		}
-	}, false);
+			};
 
-	// after 30 sec, start checking every second for reload
-	var LIMIT_MS = 30000;
-	setTimeout(function () {
-		//
-		setInterval(function () {
-			if (document.hidden) {
-				return;
-			}
-			for (var id in window.SD.Ads.visibleTime) {
-				if (window.SD.Ads.visibleTime.hasOwnProperty(id)) {
-					var timeinfo = window.SD.Ads.visibleTime[id];
-					if (timeinfo.visible &&
-						timeinfo.prevVisibleTotal + (performance.now() - timeinfo.visible) >= LIMIT_MS &&
-						timeinfo.reloadCount < 50
-					) {
-						timeinfo.reloadCount++;
-						timeinfo.visible = false;
-						timeinfo.prevVisibleTotal = 0;
-						window.SD.Ads.Helpers.refreshBids([id]);
-					}
-				}
-			}
-		}, 1000);
-	}, LIMIT_MS);
-};
-
-window.SD.Ads.Helpers.refreshBids = function (reloadIds) {
-		console.log('AD REFRESH: refreshBids', reloadIds);
-		pbjs.que.push(function () {
-			for (var i = reloadIds.length-1; i >= 0; i--) {
-				var id = reloadIds[i];
-				// clear out winner status from earlier auctions
-				if (bizxPrebid.Ads.prebidWinners[id]) {
-					delete bizxPrebid.Ads.prebidWinners[id];
-				}
-				// if has complement (hubicon), remove it since they are just house ads and can cause funky layouts if this leaderboard is refreshed to a different size
-				var path = window.SD.Ads.slotsById[id].getAdUnitPath();
-				/*var complement = gptadComplements[path];
-				if (complement) {
-					var complement_shortname = complement[0];
-					var complement_path = "/41014381/SD/" + complement_shortname;
-					var slot = window.SD.Ads.slotsById[window.SD.Ads.idsByPath[complement_path]];
-					if (slot) {
-						googletag.destroySlots([slot]);
-						var $wrappedAd = $(window.SD.Ads.Helpers.getContainerIDFromPath(complement_path));
-						$wrappedAd.remove();
-						delete gptadComplements[path];
-					}
-				}*/
-
-			}
-
-			pbjs.requestBids({
-				timeout: window.bizxPrebid.PREBID_TIMEOUT,
-				adUnitCodes: reloadIds,
-				bidsBackHandler: function () {
-					var reloadSlots = reloadIds.map(function(id) { return window.SD.Ads.slotsById[id]; });
-
-					// clear out previous sizing attrs, as they may change after refresh
-/*
-					for (var i = 0; i < reloadSlots.length; i++) {
-						var $wrappedAd = $(window.SD.Ads.Helpers.getContainerIDFromPath(reloadSlots[i].getAdUnitPath()));
-						var classes = $wrappedAd.attr('class').split(' ');
-						for (var j = 0; j < classes.length; j++) {
-							if (classes[j].indexOf('sz_') >= 0) {
-								$wrappedAd.removeClass(classes[j]);
+			window.SD.Ads.setupAdRefresh = function () {
+				document.addEventListener('visibilitychange', function () {
+					for (var id in window.SD.Ads.visibleTime) {
+						if (window.SD.Ads.visibleTime.hasOwnProperty(id)) {
+							var timeinfo = window.SD.Ads.visibleTime[id];
+							if (document.hidden) {
+								timeinfo.wasVisibleBeforePageBgd = !!timeinfo.visible;
+								if (timeinfo.visible) {
+									timeinfo.prevVisibleTotal += performance.now() - timeinfo.visible;
+									timeinfo.visible = false;
+								}
+							} else if (!document.hidden && timeinfo.wasVisibleBeforePageBgd) {
+								timeinfo.visible = performance.now();
 							}
 						}
 					}
-*/
-					pbjs.setTargetingForGPTAsync(reloadIds);
-					googletag.pubads().refresh(reloadSlots);
-				}
-			});
-		});
-	}
-</script>
+				}, false);
 
-<!-- CrossPixel -->
-<script type="text/javascript">
-if (window.is_euro_union === 0) {
-    bizx.cmp.ifConsent('', ['all'], function(){
-        try{(function(){ var cb = new Date().getTime(); var s = document.createElement("script"); s.defer = true; s.src = "//tag.crsspxl.com/s1.js?d=2397&cb="+cb; var s0 = document.getElementsByTagName('script')[0]; s0.parentNode.insertBefore(s, s0); })();}catch(e){}
-    });
-}
-</script>
+				// after 30 sec, start checking every second for reload
+				var LIMIT_MS = 30000;
+				setTimeout(function () {
+					//
+					setInterval(function () {
+						if (document.hidden) {
+							return;
+						}
+						for (var id in window.SD.Ads.visibleTime) {
+							if (window.SD.Ads.visibleTime.hasOwnProperty(id)) {
+								var timeinfo = window.SD.Ads.visibleTime[id];
+								if (timeinfo.visible &&
+									timeinfo.prevVisibleTotal + (performance.now() - timeinfo.visible) >= LIMIT_MS &&
+									timeinfo.reloadCount < 50
+								) {
+									timeinfo.reloadCount++;
+									timeinfo.visible = false;
+									timeinfo.prevVisibleTotal = 0;
+									window.SD.Ads.Helpers.refreshBids([id]);
+								}
+							}
+						}
+					}, 1000);
+				}, LIMIT_MS);
+			};
+
+			window.SD.Ads.Helpers.refreshBids = function (reloadIds) {
+				console.log('AD REFRESH: refreshBids', reloadIds);
+				pbjs.que.push(function () {
+					for (var i = reloadIds.length - 1; i >= 0; i--) {
+						var id = reloadIds[i];
+						// clear out winner status from earlier auctions
+						if (bizxPrebid.Ads.prebidWinners[id]) {
+							delete bizxPrebid.Ads.prebidWinners[id];
+						}
+						// if has complement (hubicon), remove it since they are just house ads and can cause funky layouts if this leaderboard is refreshed to a different size
+						var path = window.SD.Ads.slotsById[id].getAdUnitPath();
+						/*var complement = gptadComplements[path];
+						if (complement) {
+							var complement_shortname = complement[0];
+							var complement_path = "/41014381/SD/" + complement_shortname;
+							var slot = window.SD.Ads.slotsById[window.SD.Ads.idsByPath[complement_path]];
+							if (slot) {
+								googletag.destroySlots([slot]);
+								var $wrappedAd = $(window.SD.Ads.Helpers.getContainerIDFromPath(complement_path));
+								$wrappedAd.remove();
+								delete gptadComplements[path];
+							}
+						}*/
+
+					}
+
+					pbjs.requestBids({
+						timeout: window.bizxPrebid.PREBID_TIMEOUT,
+						adUnitCodes: reloadIds,
+						bidsBackHandler: function () {
+							var reloadSlots = reloadIds.map(function (id) { return window.SD.Ads.slotsById[id]; });
+
+							// clear out previous sizing attrs, as they may change after refresh
+							/*
+												for (var i = 0; i < reloadSlots.length; i++) {
+													var $wrappedAd = $(window.SD.Ads.Helpers.getContainerIDFromPath(reloadSlots[i].getAdUnitPath()));
+													var classes = $wrappedAd.attr('class').split(' ');
+													for (var j = 0; j < classes.length; j++) {
+														if (classes[j].indexOf('sz_') >= 0) {
+															$wrappedAd.removeClass(classes[j]);
+														}
+													}
+												}
+							*/
+							pbjs.setTargetingForGPTAsync(reloadIds);
+							googletag.pubads().refresh(reloadSlots);
+						}
+					});
+				});
+			}
+		</script>
+
+		<!-- CrossPixel -->
+		<script type="text/javascript">
+			if (window.is_euro_union === 0) {
+				bizx.cmp.ifConsent('', ['all'], function () {
+					try { (function () { var cb = new Date().getTime(); var s = document.createElement("script"); s.defer = true; s.src = "//tag.crsspxl.com/s1.js?d=2397&cb=" + cb; var s0 = document.getElementsByTagName('script')[0]; s0.parentNode.insertBefore(s, s0); })(); } catch (e) { }
+				});
+			}
+		</script>
 
 
 
 
-<!-- AdBlock Check -->
-<script>
-var isAdBlockActive = true;
-</script>
-<script async src="//a.fsdn.com/sd/js/scripts/ad.js?a2aa91913b32072a"></script>
-</head>
+		<!-- AdBlock Check -->
+		<script>
+			var isAdBlockActive = true;
+		</script>
+		<script async src="//a.fsdn.com/sd/js/scripts/ad.js?a2aa91913b32072a"></script>
+	</head>
 
 <body class="anon index2 ">
 
