@@ -28,7 +28,7 @@
                     </StackPanel.Children>
                 </StackPanel>
                 <TextBlock Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" HorizontalTextAlignment="Center" Text="LOADING ..." />
-                <WebView x:Name="_webView" Grid.Row="2" Source="https://platform.uno" />
+                
                 <TextBlock x:Name="_messageTextBlock" Grid.Row="3" />
             </Grid.Children>
 

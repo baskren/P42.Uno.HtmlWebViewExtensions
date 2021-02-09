@@ -52,14 +52,25 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <Compile Include="**\*.unowasm.cs" />
     <Compile Include="**\*.unowasm.*.cs" />
+
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <EmbeddedResource Include="Themes\Generic.xaml" />
+
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Assets\moderateMargins.svg" />
     <None Remove="Assets\narrowMargins.svg" />
     <None Remove="Assets\wideMargins.svg" />
+    <None Remove="LinkerDefinition.Wasm.xml" />
+    <None Remove="Themes\Generic.xaml" />
     <None Remove="WasmScripts\html2canvas.min.js" />
     <None Remove="WasmScripts\UnoPng.js" />
+    <None Remove="WasmScripts\UnoPrint.js" />
+    <None Remove="WasmScripts\UnoWebView.js" />
+    <None Remove="WasmScripts\UnoWebViewBridge.js.txt" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\moderateMargins.svg" />
@@ -67,7 +78,13 @@
     <Content Include="Assets\wideMargins.svg" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="LinkerDefinition.Wasm.xml">
+      <LogicalName>$(AssemblyName).xml</LogicalName>
+    </EmbeddedResource>
     <EmbeddedResource Include="WasmScripts\html2canvas.min.js" />
+    <EmbeddedResource Include="WasmScripts\UnoWebView.js" />
     <EmbeddedResource Include="WasmScripts\UnoPng.js" />
+    <EmbeddedResource Include="WasmScripts\UnoPrint.js" />
+    <EmbeddedResource Include="WasmScripts\UnoWebViewBridge.js.txt" />
   </ItemGroup>
 </Project>

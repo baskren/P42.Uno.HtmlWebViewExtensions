@@ -24,7 +24,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         /// <param name="jobName">Job name.</param>
         public static async Task PrintAsync(this WebView webview, string jobName)
         {
-            await (NativePrintService?.PrintAsync(webview, jobName) ?? Task.Delay(5));
+            await (NativePrintService?.PrintAsync(webview, jobName) ?? Task.CompletedTask);
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         /// <param name="jobName"></param>
         public static async Task PrintAsync(this string html, string jobName)
         {
-            await (NativePrintService?.PrintAsync(html, jobName) ?? Task.Delay(5));
+            await (NativePrintService?.PrintAsync(html, jobName) ?? Task.CompletedTask);
         }
 
         /// <summary>

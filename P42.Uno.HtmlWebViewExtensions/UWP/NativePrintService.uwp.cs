@@ -15,9 +15,6 @@ namespace P42.Uno.HtmlWebViewExtensions
 	/// </summary>
 	public class NativePrintService : INativePrintService
 	{
-
-
-
 		/// <summary>
 		/// Cans the print.
 		/// </summary>
@@ -60,8 +57,6 @@ namespace P42.Uno.HtmlWebViewExtensions
 
 			_printingTCS = null;
 		}
-
-
 
 		public async Task PrintAsync(string html, string jobName)
 		{

@@ -1,0 +1,65 @@
+﻿
+function UnoWebViewBridge_PostMessage(message) {
+    console.log('UnoWebViewBridge_PostMessage: message: ' + message);
+    window.parent.postMessage(message, "*");
+}
+
+function UnoWebViewBridge_ReceiveMessage(event) {
+    console.log("UnoWebViewBridge_ReceiveMessage: event.data: " + event.data);
+}
+
+function UnoWebViewBridge_Initiate() {
+
+    const currentWindowOnLoad = window.onload;
+    window.onload = function () {
+        UnoWebViewBridge_PostMessage('{"id":' + sessionStorage.getItem('NativeWebViewId') + ', "message":"C"}');
+        if (currentWindowOnLoad !== undefined && currentWindowOnLoad !== null)
+            currentWindowOnLoad();
+
+        window.addEventListener("message", UnoWebViewBridge_ReceiveMessage, false);
+
+        //window.addEventListener("message", (event) => {
+        //    console.log("UnoWebViewBridge_initiate: message received: " + event.data);
+        //
+        //    //PostMessage(event.data);
+        //}, false);
+        
+        let obj = new Object();
+        obj.tag = "onloaded";
+        obj.location = window.location;
+        obj.referrer = document.referrer;
+        
+        UnoWebViewBridge_PostMessage(JSON.stringify(obj));
+        
+        console.log("history.length: " + window.history.length);
+        console.log("history.state: " + window.history.state);
+
+        UnoWebViewBridge_PostMessage('{"id":' + sessionStorage.getItem('NativeWebViewId') + ', "message":"D"}');
+        console.log("UnoWebViewBridge_initiate: window.onLoad: EXIT");
+    }
+    UnoWebViewBridge_PostMessage('{"id":' + sessionStorage.getItem('NativeWebViewId') + ', "message":"A"}');
+    console.log("UnoWebViewBridge_initiate: EXIT");
+}
+
+
+function UnoWebViewBridge_Assign(x) {
+    window.location.assign(x);
+}
+
+function UnoWebViewBridge_Reload(fromNetwork) {
+    window.location.reload(fromNetwork);
+}
+
+function UnoWebViewBridge_GoBack() {
+    window.history.back();
+}
+
+function UnoWebViewBridge_GoForward() {
+    window.history.forward();
+}
+
+UnoWebViewBridge_Initiate();
+
+UnoWebViewBridge_PostMessage('{"id":' + sessionStorage.getItem('NativeWebViewId') + ', "message":"B"}');
+console.log("UnoWebBridge EXIT");
+

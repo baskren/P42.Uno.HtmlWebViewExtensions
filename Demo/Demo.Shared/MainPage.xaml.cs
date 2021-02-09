@@ -14,6 +14,12 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using P42.Uno.HtmlWebViewExtensions;
 using Windows.UI;
+using System.Net;
+#if __WASM__
+using WebView = P42.Uno.HtmlWebViewExtensions.WebViewX;
+#else
+using WebView = Windows.UI.Xaml.Controls.WebView;
+#endif
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -24,17 +30,34 @@ namespace Demo
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        WebView _webView = new WebView
+        {
+            //Source = new Uri("https://platform.uno")
+            Source = new Uri("https://slashdot.org")
+        };
+
         public MainPage()
         {
             this.InitializeComponent();
 
             _toPngButton.IsEnabled = ToPngService.IsAvailable;
             _toPdfButton.IsEnabled = ToPdfService.IsAvailable;
+
+            Grid.SetRow(_webView, 2);
+            _grid.Children.Add(_webView);
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            //_webView.Navigate(new Uri("https://platform.uno"));
+            _toPngButton.IsEnabled = true;
         }
 
 
         async void OnToPngClicked(object sender, RoutedEventArgs e)
         {
+            /*
             ShowSpinner();
             if ( await _webView.ToPngAsync("WebView.png") is ToFileResult fileResult)
             {
@@ -51,10 +74,30 @@ namespace Demo
                 }
             }
             HideSpinner();
+            */
+
+            //_webView.Navigate(new Uri("https://platform.uno"));
+
+            WebClient client = new WebClient();
+            var resources = GetType().Assembly.GetManifestResourceNames();
+            foreach (var resource in resources)
+                System.Diagnostics.Debug.WriteLine("\t " + resource);
+            using (var stream = GetType().Assembly.GetManifestResourceStream("Demo.Wasm.Resources.platform.uno.txt"))
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    var text = await reader.ReadToEndAsync();
+                    _webView.NavigateToString(text);
+                }
+            }
+            //var html = client.DownloadString("https://platform.uno");
+            //_webView.NavigateToString(html); 
+            
         }
 
         async void OnToPdfClicked(object sender, RoutedEventArgs e)
         {
+            /*
             ShowSpinner();
             if (await _webView.ToPdfAsync("WebView.pdf") is ToFileResult fileResult)
             {
@@ -71,13 +114,15 @@ namespace Demo
                 }
             }
             HideSpinner();
+            */
         }
 
         async void OnPrintClicked(object sender, RoutedEventArgs e)
         {
-            //ShowSpinner();
+            /*
             await _webView.PrintAsync("WebView PrintJob");
-            //HideSpinner();
+            */
+            _webView.Navigate(new Uri("https://slashdot.org"));
         }
 
         Grid _spinner;
