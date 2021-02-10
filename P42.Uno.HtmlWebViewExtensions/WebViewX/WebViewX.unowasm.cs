@@ -105,12 +105,6 @@ namespace P42.Uno.HtmlWebViewExtensions
 			}
 		}
 
-		partial void GoBackPartial()
-			=> _nativeWebView.GoBack();
-
-		partial void GoForwardPartial()
-			=> _nativeWebView.GoForward();
-
 		partial void NavigateToStringPartial(string text)
         {
 			_nativeWebView.SetInternalSource(text);

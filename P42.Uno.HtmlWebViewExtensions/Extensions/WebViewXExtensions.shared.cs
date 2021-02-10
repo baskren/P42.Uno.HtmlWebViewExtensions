@@ -9,12 +9,12 @@ namespace P42.Uno.HtmlWebViewExtensions
 {
     public static class WebViewXExtensions
     {
-        public static void WasmBridgeNavigateToString(this WebView webView, string text)
+        internal static string InjectWebBridge(string text)
         {
 #if __WASM__
-            var script =// "<script src='" +
-                NativeWebView.WebViewBridgeScriptUrl; // +
-                //"'></script>";
+            var script = "<script src='" +
+                NativeWebView.WebViewBridgeScriptUrl +
+                "'></script>";
             bool edited = false;
             var index = text.IndexOf("</body>", StringComparison.OrdinalIgnoreCase);
             if (index > -1)
@@ -24,7 +24,7 @@ namespace P42.Uno.HtmlWebViewExtensions
             }
             if (!edited)
             {
-                index  = text.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
+                index = text.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                 if (index > -1)
                 {
                     text = text.Insert(index, script);
@@ -37,7 +37,7 @@ namespace P42.Uno.HtmlWebViewExtensions
             }
             //System.Diagnostics.Debug.WriteLine("WebViewXExtensions. new text: " + text);
 #endif
-            webView.NavigateToString(text);
+            return text;
         }
     }
 }

@@ -7,6 +7,7 @@ using Uno.Foundation;
 using System.Net.Http;
 using System.IO;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
@@ -42,40 +43,18 @@ namespace P42.Uno.HtmlWebViewExtensions
             System.Diagnostics.Debug.WriteLine("NativeWebView.OnFrameLoaded(" + id + ")");
             if (InstanceAtId(id) is NativeWebView nativeWebView)
             {
-
-                nativeWebView._loaded = true;
-                nativeWebView.UpdateFromInternalSource();
+                if (!nativeWebView._loaded)
+                {
+                    nativeWebView._loaded = true;
+                    nativeWebView.UpdateFromInternalSource();
+                }
                 nativeWebView.ClearCssStyle("pointer-events");
-                /*
-                System.Diagnostics.Debug.WriteLine($"NativeWebView.OnFrameLoaded src=[{nativeWebView.GetHtmlAttribute("src")}]");
-                System.Diagnostics.Debug.WriteLine("NativeWebView.GetLocation(): " + nativeWebView.GetLocation());
-                nativeWebView.SetHtmlAttribute("sandbox", "allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation");
-                */
             }
         }
 
 
         static string WebViewBridgeRootPage => PackageLocation + "Assets/UnoWebViewBridge.html";
         internal static string WebViewBridgeScriptUrl => PackageLocation + "UnoWebViewBridge.js";
-            /*
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(_webViewBridgeScript))
-                {
-                    using (var stream = typeof(P42.Uno.HtmlWebViewExtensions.NativePrintService).Assembly.GetManifestResourceStream("P42.Uno.HtmlWebViewExtensions.WasmScripts.UnoWebViewBridge.js"))
-                    {
-                        using (var reader = new StreamReader(stream))
-                        {
-                            _webViewBridgeScript = reader.ReadToEnd();
-                        }
-                    }
-                }
-                return _webViewBridgeScript;
-            }
-        }
-            */
-
 
         public readonly string Id;
         readonly Guid InstanceGuid;
@@ -85,39 +64,14 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         public NativeWebView()
         {
-            System.Diagnostics.Debug.WriteLine("NativeWebView..ctr");
-            //var script = OnLoadScript(IndexOfInstance(this));
             InstanceGuid = Guid.NewGuid();
             Id = this.GetHtmlAttribute("id");
-            System.Diagnostics.Debug.WriteLine("NativeWebView.ctr id=" + Id);
             Instances.Add(Id, new WeakReference<NativeWebView>(this));
             this.SetCssStyle("border", "none");
             //this.ClearCssStyle("pointer-events");  // doesn't seem to work here as it seems to get reset by Uno during layout.
             this.SetHtmlAttribute("onLoad", $"UnoWebView_OnLoad('{Id}')");
-            /*
-            this.SetHtmlAttribute("srcdoc", "<script>"+
-                $"sessionStorage.setItem('Uno.WebView.Session','{SessionGuid}');"+
-                $"sessionStorage.setItem('Uno.WebView.Instance','{InstanceGuid}');" +
-                WebViewBridgeScriptUrl + 
-                "</script>");
-            */
             this.SetHtmlAttribute("name", SessionGuid.ToString() + ":" + InstanceGuid.ToString());
             this.SetHtmlAttribute("src", WebViewBridgeRootPage);
-            System.Diagnostics.Debug.WriteLine("NativeWebView.ctr: WebBridgeScriptUri: " + WebViewBridgeScriptUrl);
-            
-
-            //System.Diagnostics.Debug.WriteLine($"NativeWebView.ctr script=[{WebViewBridgeScript}]");
-            //System.Diagnostics.Debug.WriteLine("NativeWebView..ctr script=["+script+"]");
-            //this.SetHtmlAttribute("onLoad", script);
-            //this.SetHtmlAttribute("onLoad", "alert(this.contentWindow.location);");
-            //this.SetHtmlAttribute("onLoad", "Window.PostMessage();");
-            //this.SetHtmlAttribute("onLoad", $"alert('{this.GetHtmlAttribute("id")}');");
-            //this.SetHtmlAttribute("onload", $"UnoWebView_OnLoad('{Guid}')");
-            //this.SetHtmlAttribute("onload", $"");
-            //this.SetCssStyle("pointer-events", "auto");
-            //this.ClearCssStyle("pointer-events");
-            //this.SetHtmlAttribute("sandbox", "allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation");
-            //WebAssemblyRuntime.InvokeJS($"UnoWebView_SetMessageListener();");
         }
 
 
@@ -126,20 +80,10 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         void NavigateToText(string text)
         {
-            
+            text = WebViewXExtensions.InjectWebBridge(text);
             var valueBytes = Encoding.UTF8.GetBytes(text);
             var base64 = Convert.ToBase64String(valueBytes);
-            WebAssemblyRuntime.InvokeJS(new Message<string>(Id, base64));
-            
-            /*
-            if (!Directory.Exists("/tmp"))
-                Directory.CreateDirectory("/tmp");
-            var folder = Path.Combine("/tmp", InstanceGuid.ToString());
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
-            var filePath = Path.Combine(folder, Guid.NewGuid().ToString()+".html");
-            File.WriteAllText(filePath, text);
-            */
+            WebAssemblyRuntime.InvokeJS(new Message<string>(Id, "data:text/html;charset=utf-8;base64," + base64));
         }
 
         void NavigateWithHttpRequestMessage(HttpRequestMessage message)
@@ -147,16 +91,10 @@ namespace P42.Uno.HtmlWebViewExtensions
             throw new NotSupportedException();
         }
 
-        internal void GoForward()
-        {
-            if (_loaded)
-                WebAssemblyRuntime.InvokeJS(new Message(Id));
-        }
 
-        internal void GoBack()
+        internal async Task<string> InvokeScriptAsync(string script, string[] arguments)
         {
-            if (_loaded)
-                WebAssemblyRuntime.InvokeJS(new Message(Id));
+
         }
 
         internal void SetInternalSource(object source)
@@ -230,6 +168,12 @@ namespace P42.Uno.HtmlWebViewExtensions
                 => Payload = payload;
         }
 
+        class ScriptMessage : Message<string[]>
+        {
+            public string Script { get; private set; }
 
+            public ScriptMessage(string id, string script, string[] arguments, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null) : base(id, arguments, callerName)
+                => Script = script;
+        }
     }
 }

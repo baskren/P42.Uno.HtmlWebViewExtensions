@@ -81,8 +81,7 @@ namespace Demo
                 using (var reader = new StreamReader(stream))
                 {
                     var text = await reader.ReadToEndAsync();
-                    _webView.WasmBridgeNavigateToString(text);
-                    //_webView.NavigateToString(text);
+                    _webView.NavigateToString(text);
                 }
             }
             //WebClient client = new WebClient();
@@ -128,8 +127,7 @@ namespace Demo
                 using (var reader = new StreamReader(stream))
                 {
                     var text = await reader.ReadToEndAsync();
-                    _webView.WasmBridgeNavigateToString(text);
-                    //_webView.NavigateToString(text);
+                    _webView.NavigateToString(text);
                 }
             }
             

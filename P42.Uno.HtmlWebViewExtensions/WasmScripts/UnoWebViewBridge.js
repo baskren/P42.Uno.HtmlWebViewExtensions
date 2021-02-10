@@ -29,17 +29,18 @@
         var guids = GetGuids();
         console.log("UnoWebViewBridge_ReceiveMessage: session:  " + guids[0]);
         console.log("UnoWebViewBridge_ReceiveMessage: instance: " + guids[1]);
+
         //if (event.data.Session == sessionStorage.getItem('Uno.WebView.Session')) {
 
         if (event.data.Method == 'Navigate') {
-            UnoWebViewBridge_Assign(event.data.Payload);
+            window.location.assign(event.data.Payload);
         }
         else if (event.data.Method == 'NavigateToText') {
-            var newsrc = 'data:text/html;charset=utf-8;base64,' + event.data.Payload;
-            console.log('UnoWebViewBridge_ReceiveMessage NavigateToText newsrc=' + newsrc);
-            window.location.assign(newsrc);
-            //document.write(atob(event.data.Payload));
+            window.location.assign(event.data.Payload);
         }
+        else if (event.data.Method == 'Reload') {
+            window.location.reload(event.data.Payload);
+		}
         //}
     }
 
@@ -58,22 +59,6 @@
             console.log("UnoWebViewBridge_initiate: window.onLoad: EXIT");
         }
         console.log("UnoWebViewBridge_initiate: EXIT");
-    }
-
-    function UnoWebViewBridge_Assign(x) {
-        window.location.assign(x);
-    }
-
-    function UnoWebViewBridge_Reload(fromNetwork) {
-        window.location.reload(fromNetwork);
-    }
-
-    function UnoWebViewBridge_GoBack() {
-        window.history.back();
-    }
-
-    function UnoWebViewBridge_GoForward() {
-        window.history.forward();
     }
 
     UnoWebViewBridge_Initiate();
