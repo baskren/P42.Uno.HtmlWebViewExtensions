@@ -14,10 +14,15 @@ namespace P42.Uno.HtmlWebViewExtensions
     public partial class NativeWebView : FrameworkElement
     {
         static readonly Guid SessionGuid = Guid.NewGuid();
+        static readonly string Location;
+        static readonly string PackageLocation;
 
         static NativeWebView()
         {
             WebAssemblyRuntime.InvokeJS($"sessionStorage.setItem('Uno.WebView.Session','{SessionGuid}');");
+            Location = WebAssemblyRuntime.InvokeJS("window.location.href");
+            PackageLocation = WebAssemblyRuntime.InvokeJS("window.scriptDirectory");
+            System.Diagnostics.Debug.WriteLine("NativeWebView.STATIC location: " + Location);
         }
 
         static Dictionary<string, WeakReference<NativeWebView>> Instances = new Dictionary<string, WeakReference<NativeWebView>>();
@@ -49,14 +54,16 @@ namespace P42.Uno.HtmlWebViewExtensions
             }
         }
 
-        static string _webViewBridgeScript;
-        internal static string WebViewBridgeScript
+
+        static string WebViewBridgeRootPage => PackageLocation + "Assets/UnoWebViewBridge.html";
+        internal static string WebViewBridgeScriptUrl => PackageLocation + "UnoWebViewBridge.js";
+            /*
         {
             get
             {
                 if (string.IsNullOrWhiteSpace(_webViewBridgeScript))
                 {
-                    using (var stream = typeof(P42.Uno.HtmlWebViewExtensions.NativePrintService).Assembly.GetManifestResourceStream("P42.Uno.HtmlWebViewExtensions.WasmScripts.UnoWebViewBridge.js.txt"))
+                    using (var stream = typeof(P42.Uno.HtmlWebViewExtensions.NativePrintService).Assembly.GetManifestResourceStream("P42.Uno.HtmlWebViewExtensions.WasmScripts.UnoWebViewBridge.js"))
                     {
                         using (var reader = new StreamReader(stream))
                         {
@@ -67,6 +74,8 @@ namespace P42.Uno.HtmlWebViewExtensions
                 return _webViewBridgeScript;
             }
         }
+            */
+
 
         public readonly string Id;
         readonly Guid InstanceGuid;
@@ -85,11 +94,18 @@ namespace P42.Uno.HtmlWebViewExtensions
             this.SetCssStyle("border", "none");
             //this.ClearCssStyle("pointer-events");  // doesn't seem to work here as it seems to get reset by Uno during layout.
             this.SetHtmlAttribute("onLoad", $"UnoWebView_OnLoad('{Id}')");
+            /*
             this.SetHtmlAttribute("srcdoc", "<script>"+
                 $"sessionStorage.setItem('Uno.WebView.Session','{SessionGuid}');"+
                 $"sessionStorage.setItem('Uno.WebView.Instance','{InstanceGuid}');" +
-                WebViewBridgeScript + 
+                WebViewBridgeScriptUrl + 
                 "</script>");
+            */
+            this.SetHtmlAttribute("name", SessionGuid.ToString() + ":" + InstanceGuid.ToString());
+            this.SetHtmlAttribute("src", WebViewBridgeRootPage);
+            System.Diagnostics.Debug.WriteLine("NativeWebView.ctr: WebBridgeScriptUri: " + WebViewBridgeScriptUrl);
+            
+
             //System.Diagnostics.Debug.WriteLine($"NativeWebView.ctr script=[{WebViewBridgeScript}]");
             //System.Diagnostics.Debug.WriteLine("NativeWebView..ctr script=["+script+"]");
             //this.SetHtmlAttribute("onLoad", script);
@@ -98,7 +114,6 @@ namespace P42.Uno.HtmlWebViewExtensions
             //this.SetHtmlAttribute("onLoad", $"alert('{this.GetHtmlAttribute("id")}');");
             //this.SetHtmlAttribute("onload", $"UnoWebView_OnLoad('{Guid}')");
             //this.SetHtmlAttribute("onload", $"");
-            //this.SetHtmlAttribute("name", "NativeWebView" + InstanceIndex);
             //this.SetCssStyle("pointer-events", "auto");
             //this.ClearCssStyle("pointer-events");
             //this.SetHtmlAttribute("sandbox", "allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation");
@@ -111,12 +126,12 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         void NavigateToText(string text)
         {
-            /*
+            
             var valueBytes = Encoding.UTF8.GetBytes(text);
             var base64 = Convert.ToBase64String(valueBytes);
             WebAssemblyRuntime.InvokeJS(new Message<string>(Id, base64));
-            */
-
+            
+            /*
             if (!Directory.Exists("/tmp"))
                 Directory.CreateDirectory("/tmp");
             var folder = Path.Combine("/tmp", InstanceGuid.ToString());
@@ -124,7 +139,7 @@ namespace P42.Uno.HtmlWebViewExtensions
                 Directory.CreateDirectory(folder);
             var filePath = Path.Combine(folder, Guid.NewGuid().ToString()+".html");
             File.WriteAllText(filePath, text);
-            var uri = new Uri("file://" + filePath);
+            */
         }
 
         void NavigateWithHttpRequestMessage(HttpRequestMessage message)

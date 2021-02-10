@@ -70,7 +70,7 @@
     <None Remove="WasmScripts\UnoPng.js" />
     <None Remove="WasmScripts\UnoPrint.js" />
     <None Remove="WasmScripts\UnoWebView.js" />
-    <None Remove="WasmScripts\UnoWebViewBridge.js.txt" />
+    <None Remove="WasmScripts\UnoWebViewBridge.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\moderateMargins.svg" />
@@ -85,6 +85,6 @@
     <EmbeddedResource Include="WasmScripts\UnoWebView.js" />
     <EmbeddedResource Include="WasmScripts\UnoPng.js" />
     <EmbeddedResource Include="WasmScripts\UnoPrint.js" />
-    <EmbeddedResource Include="WasmScripts\UnoWebViewBridge.js.txt" />
+    <EmbeddedResource Include="WasmScripts\UnoWebViewBridge.js" />
   </ItemGroup>
 </Project>

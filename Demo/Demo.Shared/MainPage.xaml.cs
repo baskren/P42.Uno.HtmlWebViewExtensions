@@ -74,7 +74,7 @@ namespace Demo
             }
             HideSpinner();
             */
-
+            
             var resources = GetType().Assembly.GetManifestResourceNames();
             using (var stream = GetType().Assembly.GetManifestResourceStream("Demo.Wasm.Resources.platform.uno.html"))
             {
@@ -88,6 +88,9 @@ namespace Demo
             //WebClient client = new WebClient();
             //var html = client.DownloadString("https://platform.uno");
             //_webView.NavigateToString(html); 
+            
+
+           // _webView.Navigate(new Uri("https://raw.githubusercontent.com/baskren/P42.Uno.HtmlWebViewExtensions/webViewBridgeEmbed/Demo/Demo.Shared/Resources/platform.uno.html"));
         }
 
         async void OnToPdfClicked(object sender, RoutedEventArgs e)
@@ -118,6 +121,7 @@ namespace Demo
             await _webView.PrintAsync("WebView PrintJob");
             */
             //_webView.Navigate(new Uri("https://platform.uno"));
+            
             var resources = GetType().Assembly.GetManifestResourceNames();
             using (var stream = GetType().Assembly.GetManifestResourceStream("Demo.Wasm.Resources.slashdot.html"))
             {
@@ -128,6 +132,9 @@ namespace Demo
                     //_webView.NavigateToString(text);
                 }
             }
+            
+
+            //_webView.Navigate(new Uri("https://raw.githubusercontent.com/baskren/P42.Uno.HtmlWebViewExtensions/webViewBridgeEmbed/Demo/Demo.Shared/Resources/slashdot.html"));
         }
 
         Grid _spinner;

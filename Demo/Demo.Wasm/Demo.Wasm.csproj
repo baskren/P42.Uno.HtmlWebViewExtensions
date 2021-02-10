@@ -12,10 +12,18 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Assets\platform.uno.shtml" UnoDeploy="Package" />
+    <Content Include="Assets\slashdot.shtml" UnoDeploy="Package" />
     <Content Include="Assets\SplashScreen.png" />
+    <Content Include="Assets\UnoWebViewBridge.html">
+      <UnoDeploy>Package</UnoDeploy>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <UpToDateCheckInput Include="..\Demo.Shared\**\*.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Assets\UnoWebViewBridge.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="WasmCSS\Fonts.css" />

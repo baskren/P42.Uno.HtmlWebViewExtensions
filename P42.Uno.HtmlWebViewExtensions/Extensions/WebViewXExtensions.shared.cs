@@ -12,9 +12,9 @@ namespace P42.Uno.HtmlWebViewExtensions
         public static void WasmBridgeNavigateToString(this WebView webView, string text)
         {
 #if __WASM__
-            var script = "<script>" +
-                NativeWebView.WebViewBridgeScript +
-                "</script>";
+            var script =// "<script src='" +
+                NativeWebView.WebViewBridgeScriptUrl; // +
+                //"'></script>";
             bool edited = false;
             var index = text.IndexOf("</body>", StringComparison.OrdinalIgnoreCase);
             if (index > -1)
