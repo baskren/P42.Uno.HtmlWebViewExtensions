@@ -3,7 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.UI.Xaml.Controls;
+//using Windows.UI.Xaml.Controls;
+#if __WASM__
+using WebView = P42.Uno.HtmlWebViewExtensions.WebViewX;
+#else
+using WebView = Windows.UI.Xaml.Controls.WebView;
+#endif
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
@@ -11,7 +16,7 @@ namespace P42.Uno.HtmlWebViewExtensions
     {
         static INativePrintService _nativePrintService;
         static INativePrintService NativePrintService =>
-#if __IOS__ || __ANDROID__ || NETFX_CORE
+#if __IOS__ || __ANDROID__ || NETFX_CORE || __WASM__
             _nativePrintService = _nativePrintService ?? new NativePrintService();
 #else
             null;

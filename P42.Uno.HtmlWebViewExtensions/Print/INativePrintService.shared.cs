@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Windows.UI.Xaml.Controls;
+#if __WASM__
+using WebView = P42.Uno.HtmlWebViewExtensions.WebViewX;
+#else
+using WebView = Windows.UI.Xaml.Controls.WebView;
+#endif
 
 namespace P42.Uno.HtmlWebViewExtensions
 {

@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.IO;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace P42.Uno.HtmlWebViewExtensions
 {
@@ -27,6 +28,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         }
 
         static Dictionary<string, WeakReference<NativeWebView>> Instances = new Dictionary<string, WeakReference<NativeWebView>>();
+        static Dictionary<string, TaskCompletionSource<string>> TCSs = new Dictionary<string, TaskCompletionSource<string>>();
 
         static NativeWebView InstanceAtId(string id)
         {
@@ -43,12 +45,31 @@ namespace P42.Uno.HtmlWebViewExtensions
             System.Diagnostics.Debug.WriteLine("NativeWebView.OnFrameLoaded(" + id + ")");
             if (InstanceAtId(id) is NativeWebView nativeWebView)
             {
-                if (!nativeWebView._loaded)
+                if (!nativeWebView._bridgeConnected)
                 {
-                    nativeWebView._loaded = true;
+                    nativeWebView._bridgeConnected = true;
                     nativeWebView.UpdateFromInternalSource();
                 }
                 nativeWebView.ClearCssStyle("pointer-events");
+            }
+        }
+
+        public static void OnMessageReceived(string json)
+        {
+            System.Diagnostics.Debug.WriteLine("NativeWebView.OnMessageReceived: " + json);
+            var message = JObject.Parse(json);
+            if (message.TryGetValue("Target", out var target) && target.ToString() == SessionGuid.ToString())
+            {
+                if (message.TryGetValue("TaskId", out var taskId) && TCSs.TryGetValue(taskId.ToString(), out var tcs))
+                {
+                    TCSs.Remove(taskId.ToString());
+                    if (message.TryGetValue("Result", out var result))
+                        tcs.SetResult(result.ToString());
+                    else if (message.TryGetValue("Error", out var error))
+                        tcs.SetException(new Exception("Javascript Error: " + error.ToString()));
+                    else
+                        tcs.SetException(new Exception("Javascript failed for unknown reason"));
+                }
             }
         }
 
@@ -60,7 +81,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         readonly Guid InstanceGuid;
 
         private object _internalSource;
-        private bool _loaded;
+        private bool _bridgeConnected;
 
         public NativeWebView()
         {
@@ -69,21 +90,27 @@ namespace P42.Uno.HtmlWebViewExtensions
             Instances.Add(Id, new WeakReference<NativeWebView>(this));
             this.SetCssStyle("border", "none");
             //this.ClearCssStyle("pointer-events");  // doesn't seem to work here as it seems to get reset by Uno during layout.
-            this.SetHtmlAttribute("onLoad", $"UnoWebView_OnLoad('{Id}')");
             this.SetHtmlAttribute("name", SessionGuid.ToString() + ":" + InstanceGuid.ToString());
+            this.SetHtmlAttribute("onLoad", $"UnoWebView_OnLoad('{Id}')");
             this.SetHtmlAttribute("src", WebViewBridgeRootPage);
         }
 
 
         void Navigate(Uri uri)
-            => WebAssemblyRuntime.InvokeJS(new Message<Uri>(Id, uri));
+        {
+            _bridgeConnected = false;
+            _internalSource = null;
+            WebAssemblyRuntime.InvokeJS(new Message<Uri>(this, uri));
+        }
 
         void NavigateToText(string text)
         {
             text = WebViewXExtensions.InjectWebBridge(text);
             var valueBytes = Encoding.UTF8.GetBytes(text);
             var base64 = Convert.ToBase64String(valueBytes);
-            WebAssemblyRuntime.InvokeJS(new Message<string>(Id, "data:text/html;charset=utf-8;base64," + base64));
+            _bridgeConnected = false;
+            _internalSource = null;
+            WebAssemblyRuntime.InvokeJS(new Message<string>(this, "data:text/html;charset=utf-8;base64," + base64));
         }
 
         void NavigateWithHttpRequestMessage(HttpRequestMessage message)
@@ -92,10 +119,16 @@ namespace P42.Uno.HtmlWebViewExtensions
         }
 
 
-        internal async Task<string> InvokeScriptAsync(string script, string[] arguments)
+        internal async Task<string> InvokeScriptAsync(string functionName, string[] arguments)
         {
-
+            var tcs = new TaskCompletionSource<string>();
+            var taskId = Guid.NewGuid().ToString();
+            TCSs.Add(taskId, tcs);
+            WebAssemblyRuntime.InvokeJS(new ScriptMessage(this, taskId, functionName, arguments));
+            return await tcs.Task;
         }
+
+        
 
         internal void SetInternalSource(object source)
         {
@@ -105,52 +138,41 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         private void UpdateFromInternalSource()
         {
-            if (_loaded)
+            if (_bridgeConnected)
             {
-                var uri = _internalSource as Uri;
-                if (uri != null)
+                if (_internalSource is Uri uri)
                 {
                     Navigate(uri);
                     return;
                 }
-
-                var html = _internalSource as string;
-                if (html != null)
+                if (_internalSource is string html)
                 {
                     NavigateToText(html);
                 }
-
-                var message = _internalSource as HttpRequestMessage;
-                if (message != null)
+                if (_internalSource is HttpRequestMessage message)
                 {
                     NavigateWithHttpRequestMessage(message);
                 }
             }
         }
 
-        string GetLocation()
-        {
-
-            //var result = WebAssemblyRuntime.InvokeJS($"window.location.href");
-            var result = WebAssemblyRuntime.InvokeJS($"$('#{this.GetHtmlAttribute("id")}').get(0).contentWindow.location");
-            return result;
-        }
-
-
 
         class Message
         {
-            public string Session { get; private set; }
+            public string Source { get; private set; }
 
             public string Method { get; private set; }
+
+            public string Target { get; private set; }
 
             [JsonIgnore]
             public string Id { get; private set; }
 
-            public Message(string id, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
+            public Message(NativeWebView nativeWebView, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null)
             {
-                Session = SessionGuid.ToString();
-                Id = id;
+                Source = SessionGuid.ToString();
+                Id = nativeWebView.Id;
+                Target = nativeWebView.InstanceGuid.ToString();
                 Method = callerName;
             }
 
@@ -164,16 +186,23 @@ namespace P42.Uno.HtmlWebViewExtensions
         {
             public T Payload { get; private set; }
 
-            public Message(string id, T payload, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null) : base(id, callerName)
+            public Message(NativeWebView nativeWebView, T payload, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null) 
+                : base(nativeWebView, callerName)
                 => Payload = payload;
         }
 
         class ScriptMessage : Message<string[]>
         {
-            public string Script { get; private set; }
+            public string FunctionName { get; private set; }
 
-            public ScriptMessage(string id, string script, string[] arguments, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null) : base(id, arguments, callerName)
-                => Script = script;
+            public string TaskId { get; private set; }
+
+            public ScriptMessage(NativeWebView nativeWebView, string taskId, string functionName, string[] arguments, [System.Runtime.CompilerServices.CallerMemberName] string callerName = null) 
+                : base(nativeWebView, arguments, callerName)
+            {
+                FunctionName = functionName;
+                TaskId = taskId;
+            }
         }
     }
 }

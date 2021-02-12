@@ -27,6 +27,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 		TaskCompletionSource<bool> _printingTCS;
 		public async Task PrintAsync(WebView webView, string jobName)
 		{
+			
 			if (_printingTCS != null)
 				return;
 
@@ -56,6 +57,26 @@ namespace P42.Uno.HtmlWebViewExtensions
 			await _printingTCS.Task;
 
 			_printingTCS = null;
+			
+			/*
+			//await webView.InvokeScriptAsync("window.print()", new string[] { });
+			try
+			{
+				//var result = await webView.InvokeScriptAsync("eval", new string[] { "(2 + 2).toString()" });
+				//var result = await webView.InvokeScriptAsync("eval", new string[] { "(2 + 2).toString();'pizza';" });  // returns pizza
+
+				var result = await webView.InvokeScriptAsync("eval", new string[] { "window.print();'pizza';" });  // returns 'pizza', but doesn't print.
+				//var result = await webView.InvokeScriptAsync("Function", new string[] { "\"use strict\"; return ('pizza')" });
+
+				System.Diagnostics.Debug.WriteLine("NativePrintService.PrintAsync: " + result);
+
+				//result = await webView.InvokeScriptAsync("eval")
+			}
+			catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("NativePrintService.EXCEPTION: " + e);
+            }
+			*/
 		}
 
 		public async Task PrintAsync(string html, string jobName)

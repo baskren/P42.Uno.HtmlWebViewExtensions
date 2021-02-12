@@ -120,7 +120,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 
 		public async Task<string> InvokeScriptAsync(string script, string[] arguments)
 		{
-			throw new NotSupportedException();
+			return await _nativeWebView.InvokeScriptAsync(script, arguments);
 			//_nativeWebView.PostMessageToTennant
 		}
 
