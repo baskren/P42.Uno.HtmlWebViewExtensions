@@ -17,8 +17,10 @@ using Windows.UI;
 using System.Net;
 #if __WASM__
 using WebView = P42.Uno.HtmlWebViewExtensions.WebViewX;
+using WebViewNavigationCompletedEventArgs = P42.Uno.HtmlWebViewExtensions.WebViewXNavigationCompletedEventArgs;
 #else
 using WebView = Windows.UI.Xaml.Controls.WebView;
+using WebViewNavigationCompletedEventArgs = Windows.UI.Xaml.Controls.WebViewNavigationCompletedEventArgs;
 #endif
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -45,6 +47,13 @@ namespace Demo
 
             Grid.SetRow(_webView, 2);
             _grid.Children.Add(_webView);
+
+            _webView.NavigationCompleted += OnNavigationCompleted;
+        }
+
+        private void OnNavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("MainPage.OnNavigationCompleted " + args.Uri);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

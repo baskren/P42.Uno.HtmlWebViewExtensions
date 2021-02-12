@@ -1,5 +1,4 @@
 ﻿if (window.parent !== window) {
-    console.log("UnoWebBridge ==== ENTER ====");
 
     function GetGuids() {
         var session = "";
@@ -17,19 +16,11 @@
         let guids = GetGuids();
         message.Target = guids.session;
         message.Source = guids.instance;
-        console.log("UnoWebViewBridge_PostMessage: message: " + message);
         window.parent.postMessage(message, "*");
     }
 
     function UnoWebViewBridge_ReceiveMessage(event) {
         var guids = GetGuids();
-
-        //console.log("UnoWebViewBridge_ReceiveMessage: event.data: " + JSON.stringify(event.data));
-        console.log("UnoWebViewBridge_ReceiveMessage: Method: " + event.data.Method);
-        console.log("UnoWebViewBridge_ReceiveMessage: Source: " + event.data.Source);
-        console.log("UnoWebViewBridge_ReceiveMessage: guids.session: " + guids.session);
-        console.log("UnoWebViewBridge_ReceiveMessage: Target: " + event.data.Target);
-        console.log("UnoWebViewBridge_ReceiveMessage: guid.instance: " + guids.instance);
 
         if (event.data.Source == guids.session && event.data.Target == guids.instance) {
 
@@ -44,6 +35,12 @@
             else if (event.data.Method == 'Reload') {
                 window.location.reload(event.data.Payload);
                 return;
+            }
+            else if (event.data.Method == 'GoForward') {
+                window.history.forward();
+            }
+            else if (event.data.Method == 'GoBack') {
+                window.history.back();
             }
             else if (event.data.Method == 'InvokeScriptAsync') {
                 try {
@@ -96,18 +93,9 @@
 
             window.addEventListener("message", UnoWebViewBridge_ReceiveMessage, false);
 
-            console.log("history.length: " + window.history.length);
-            console.log("history.state.page: " + window.history.state.page);
-            //console.log("history.state: " + JSON.stringify(window.history.state));
-
-            UnoWebViewBridge_PostMessage({ Method: "OnBridgeLoaded", Pages: window.history.length, Page: window.history.state.page });
-            console.log("UnoWebViewBridge_initiate: window.onLoad: EXIT");
+            UnoWebViewBridge_PostMessage({ Method: "OnBridgeLoaded", Pages: window.history.length, Page: window.history.state.page, Href: window.location.href });
         }
-        console.log("UnoWebViewBridge_initiate: EXIT");
     }
 
     UnoWebViewBridge_Initiate();
-
-    console.log('UnoWebBridge.IsFrame: ' + (window.parent !== window));
-    console.log("UnoWebBridge ==== EXIT ====");
 }

@@ -97,6 +97,16 @@ namespace P42.Uno.HtmlWebViewExtensions
                                         {
                                             parent.InternalSetCanGoBack(pageIndex > 1);
                                             parent.InternalSetCanGoForward(pageCount > pageIndex);
+                                            if (message.TryGetValue("Href", out var hrefJObject))
+                                            {
+                                                var href = hrefJObject.ToString();
+                                                Uri uri = null;
+                                                if (href.StartsWith("http") || href.StartsWith("file"))
+                                                    uri = new Uri(href);
+                                                else if (href.StartsWith("data"))
+                                                    uri = new Uri("data:");
+                                                parent.OnNavigationCompleted(true, uri, Windows.Web.WebErrorStatus.Found);
+                                            }
                                         }
                                     }
                                 }
