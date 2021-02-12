@@ -81,6 +81,18 @@ namespace P42.Uno.HtmlWebViewExtensions
 			NavigationFailed?.Invoke(this, args);
         }
 
+		partial void GoBackPartial()
+		{
+			if (CanGoBack)
+				_nativeWebView.GoBack();
+		}
+
+		partial void GoForwardPartial()
+		{
+			if (CanGoForward)
+				_nativeWebView.GoForward();
+		}
+
 		partial void NavigatePartial(Uri uri)
 		{
             System.Diagnostics.Debug.WriteLine("WebViewX.NavigatePartial("+uri+")");
@@ -140,5 +152,10 @@ namespace P42.Uno.HtmlWebViewExtensions
 			return true;
 		}
 
+		internal void InternalSetCanGoBack(bool value)
+			=> CanGoBack = value;
+
+		internal void InternalSetCanGoForward(bool value)
+			=> CanGoForward = value;
 	}
 }

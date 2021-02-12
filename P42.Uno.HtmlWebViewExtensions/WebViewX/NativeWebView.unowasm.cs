@@ -30,9 +30,9 @@ namespace P42.Uno.HtmlWebViewExtensions
         static Dictionary<string, WeakReference<NativeWebView>> Instances = new Dictionary<string, WeakReference<NativeWebView>>();
         static Dictionary<string, TaskCompletionSource<string>> TCSs = new Dictionary<string, TaskCompletionSource<string>>();
 
-        static NativeWebView InstanceAtId(string id)
+        static NativeWebView InstanceForGuid(string guid)
         {
-            if (Instances.TryGetValue(id, out var weakRef))
+            if (Instances.TryGetValue(guid, out var weakRef))
             {
                 if (weakRef.TryGetTarget(out var nativeWebView))
                     return nativeWebView;
@@ -40,15 +40,15 @@ namespace P42.Uno.HtmlWebViewExtensions
             return null;
         }
 
-        public static void OnFrameLoaded(string id)
+        // Called on every page load ... even if the page isn't bridged
+        public static void OnFrameLoaded(string guid)
         {
-            System.Diagnostics.Debug.WriteLine("NativeWebView.OnFrameLoaded(" + id + ")");
-            if (InstanceAtId(id) is NativeWebView nativeWebView)
+            if (InstanceForGuid(guid) is NativeWebView nativeWebView)
             {
-                if (!nativeWebView._bridgeConnected)
+                if (nativeWebView.Parent is WebViewX parent)
                 {
-                    nativeWebView._bridgeConnected = true;
-                    nativeWebView.UpdateFromInternalSource();
+                    parent.InternalSetCanGoBack(false);
+                    parent.InternalSetCanGoForward(false);
                 }
                 nativeWebView.ClearCssStyle("pointer-events");
             }
@@ -56,19 +56,53 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         public static void OnMessageReceived(string json)
         {
-            System.Diagnostics.Debug.WriteLine("NativeWebView.OnMessageReceived: " + json);
             var message = JObject.Parse(json);
             if (message.TryGetValue("Target", out var target) && target.ToString() == SessionGuid.ToString())
             {
-                if (message.TryGetValue("TaskId", out var taskId) && TCSs.TryGetValue(taskId.ToString(), out var tcs))
+                if (message.TryGetValue("Method", out var method))
                 {
-                    TCSs.Remove(taskId.ToString());
-                    if (message.TryGetValue("Result", out var result))
-                        tcs.SetResult(result.ToString());
-                    else if (message.TryGetValue("Error", out var error))
-                        tcs.SetException(new Exception("Javascript Error: " + error.ToString()));
-                    else
-                        tcs.SetException(new Exception("Javascript failed for unknown reason"));
+                    switch (method.ToString())
+                    {
+                        case nameof(InvokeScriptAsync):
+                            {
+                                if (message.TryGetValue("TaskId", out var taskId) && 
+                                    TCSs.TryGetValue(taskId.ToString(), out var tcs))
+                                {
+                                    TCSs.Remove(taskId.ToString());
+                                    if (message.TryGetValue("Result", out var result))
+                                        tcs.SetResult(result.ToString());
+                                    else if (message.TryGetValue("Error", out var error))
+                                        tcs.SetException(new Exception("Javascript Error: " + error.ToString()));
+                                    else
+                                        tcs.SetException(new Exception("Javascript failed for unknown reason"));
+                                }
+                            }
+                            break;
+                        case "OnBridgeLoaded":
+                            // called after bridged page is loaded
+                            {
+                                if (message.TryGetValue("Source", out var source))
+                                {
+                                    if (Instances.TryGetValue(source.ToString(), out var weakReference) &&
+                                    weakReference.TryGetTarget(out var nativeWebView))
+                                    {
+                                        if (!nativeWebView._bridgeConnected)
+                                        {
+                                            nativeWebView._bridgeConnected = true;
+                                            nativeWebView.UpdateFromInternalSource();
+                                        }
+                                        if (nativeWebView.Parent is WebViewX parent &&
+                                            message.TryGetValue("Pages", out var pages) && int.TryParse(pages.ToString(), out var pageCount) &&
+                                            message.TryGetValue("Page", out var page) && int.TryParse(page.ToString(), out var pageIndex))
+                                        {
+                                            parent.InternalSetCanGoBack(pageIndex > 1);
+                                            parent.InternalSetCanGoForward(pageCount > pageIndex);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                    }
                 }
             }
         }
@@ -87,11 +121,11 @@ namespace P42.Uno.HtmlWebViewExtensions
         {
             InstanceGuid = Guid.NewGuid();
             Id = this.GetHtmlAttribute("id");
-            Instances.Add(Id, new WeakReference<NativeWebView>(this));
+            Instances.Add(InstanceGuid.ToString(), new WeakReference<NativeWebView>(this));
             this.SetCssStyle("border", "none");
             //this.ClearCssStyle("pointer-events");  // doesn't seem to work here as it seems to get reset by Uno during layout.
-            this.SetHtmlAttribute("name", SessionGuid.ToString() + ":" + InstanceGuid.ToString());
-            this.SetHtmlAttribute("onLoad", $"UnoWebView_OnLoad('{Id}')");
+            this.SetHtmlAttribute("name", $"{SessionGuid}:{InstanceGuid}");
+            this.SetHtmlAttribute("onLoad", $"UnoWebView_OnLoad('{InstanceGuid}')");
             this.SetHtmlAttribute("src", WebViewBridgeRootPage);
         }
 
@@ -111,6 +145,18 @@ namespace P42.Uno.HtmlWebViewExtensions
             _bridgeConnected = false;
             _internalSource = null;
             WebAssemblyRuntime.InvokeJS(new Message<string>(this, "data:text/html;charset=utf-8;base64," + base64));
+        }
+
+        internal void GoBack()
+        {
+            if (_bridgeConnected)
+                WebAssemblyRuntime.InvokeJS(new Message(this));
+        }
+
+        internal void GoForward()
+        {
+            if (_bridgeConnected)
+                WebAssemblyRuntime.InvokeJS(new Message(this));
         }
 
         void NavigateWithHttpRequestMessage(HttpRequestMessage message)

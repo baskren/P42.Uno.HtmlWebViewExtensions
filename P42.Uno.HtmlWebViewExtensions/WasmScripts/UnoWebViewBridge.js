@@ -33,8 +33,6 @@
 
         if (event.data.Source == guids.session && event.data.Target == guids.instance) {
 
-        //if (event.data.Session == sessionStorage.getItem('Uno.WebView.Session')) {
-
             if (event.data.Method == 'Navigate') {
                 window.location.assign(event.data.Payload);
                 return;
@@ -58,9 +56,9 @@
                     console.log('resutl: ' + result);
                     if (result === undefined || result === null)
                         result = "";
-                    UnoWebViewBridge_PostMessage({ TaskId: event.data.TaskId, Result: result });
+                    UnoWebViewBridge_PostMessage({ Method: event.data.Method, TaskId: event.data.TaskId, Result: result });
                 } catch (error) {
-                    UnoWebViewBridge_PostMessage({ TaskId: event.data.TaskId, Error: error });
+                    UnoWebViewBridge_PostMessage({ Method: event.data.Method, TaskId: event.data.TaskId, Error: error });
                 }
                 return;
             }
@@ -102,6 +100,7 @@
             console.log("history.state.page: " + window.history.state.page);
             //console.log("history.state: " + JSON.stringify(window.history.state));
 
+            UnoWebViewBridge_PostMessage({ Method: "OnBridgeLoaded", Pages: window.history.length, Page: window.history.state.page });
             console.log("UnoWebViewBridge_initiate: window.onLoad: EXIT");
         }
         console.log("UnoWebViewBridge_initiate: EXIT");
