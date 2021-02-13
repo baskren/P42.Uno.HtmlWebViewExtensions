@@ -129,8 +129,13 @@ namespace Demo
 
         async void OnPrintClicked(object sender, RoutedEventArgs e)
         {
+            /*
             await _webView.PrintAsync("WebView PrintJob");
             System.Diagnostics.Debug.WriteLine("MainPage.OnPrintClicked: DONE");
+            */
+
+            await P42.Uno.HtmlWebViewExtensions.PrintService.PrintAsync("<Button>button</Button>", "print job name");
+
             //_webView.Navigate(new Uri("https://platform.uno"));
 
             /*

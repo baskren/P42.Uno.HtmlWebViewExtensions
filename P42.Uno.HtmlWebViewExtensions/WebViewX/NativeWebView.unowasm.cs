@@ -43,6 +43,7 @@ namespace P42.Uno.HtmlWebViewExtensions
         // Called on every page load ... even if the page isn't bridged
         public static void OnFrameLoaded(string guid)
         {
+            System.Diagnostics.Debug.WriteLine("NativeWebView.OnFrameLoaded ENTER");
             if (InstanceForGuid(guid) is NativeWebView nativeWebView)
             {
                 if (nativeWebView.Parent is WebViewX parent)
@@ -52,6 +53,7 @@ namespace P42.Uno.HtmlWebViewExtensions
                 }
                 nativeWebView.ClearCssStyle("pointer-events");
             }
+            System.Diagnostics.Debug.WriteLine("NativeWebView.OnFrameLoaded EXIT");
         }
 
         public static void OnMessageReceived(string json)
@@ -59,8 +61,10 @@ namespace P42.Uno.HtmlWebViewExtensions
             var message = JObject.Parse(json);
             if (message.TryGetValue("Target", out var target) && target.ToString() == SessionGuid.ToString())
             {
+                System.Diagnostics.Debug.WriteLine("NativeWebView.OnMessageReceived Target:" + target.ToString());
                 if (message.TryGetValue("Method", out var method))
                 {
+                    System.Diagnostics.Debug.WriteLine("NativeWebView.OnMessageReceived Method:" + method.ToString());
                     switch (method.ToString())
                     {
                         case nameof(InvokeScriptAsync):
@@ -68,6 +72,7 @@ namespace P42.Uno.HtmlWebViewExtensions
                                 if (message.TryGetValue("TaskId", out var taskId) && 
                                     TCSs.TryGetValue(taskId.ToString(), out var tcs))
                                 {
+                                    System.Diagnostics.Debug.WriteLine("NativeWebView.OnMessageReceived TaskId:" + taskId.ToString());
                                     TCSs.Remove(taskId.ToString());
                                     if (message.TryGetValue("Result", out var result))
                                         tcs.SetResult(result.ToString());
@@ -81,8 +86,10 @@ namespace P42.Uno.HtmlWebViewExtensions
                         case "OnBridgeLoaded":
                             // called after bridged page is loaded
                             {
+                                System.Diagnostics.Debug.WriteLine("NativeWebView.OnMessageReceived : OnBridgeLoaded  ENTER");
                                 if (message.TryGetValue("Source", out var source))
                                 {
+                                    System.Diagnostics.Debug.WriteLine("NativeWebView.OnMessageReceived Source:" + source.ToString());
                                     if (Instances.TryGetValue(source.ToString(), out var weakReference) &&
                                     weakReference.TryGetTarget(out var nativeWebView))
                                     {
@@ -100,16 +107,27 @@ namespace P42.Uno.HtmlWebViewExtensions
                                             if (message.TryGetValue("Href", out var hrefJObject))
                                             {
                                                 var href = hrefJObject.ToString();
+                                                System.Diagnostics.Debug.WriteLine("NativeWebView.OnMessageReceived Href:" + hrefJObject.ToString());
                                                 Uri uri = null;
                                                 if (href.StartsWith("http") || href.StartsWith("file"))
                                                     uri = new Uri(href);
                                                 else if (href.StartsWith("data"))
                                                     uri = new Uri("data:");
-                                                parent.OnNavigationCompleted(true, uri, Windows.Web.WebErrorStatus.Found);
+                                                if (href == WebViewBridgeRootPage)
+                                                {
+                                                    nativeWebView._activated = true;
+                                                    nativeWebView.UpdateFromInternalSource();
+                                                }   
+                                                else
+                                                {
+                                                    System.Diagnostics.Debug.WriteLine("NativeWebView.OnBridgeLoaded uri:" + uri);
+                                                    parent.OnNavigationCompleted(true, uri, Windows.Web.WebErrorStatus.Found);
+                                                }
                                             }
                                         }
                                     }
                                 }
+                                System.Diagnostics.Debug.WriteLine("NativeWebView.OnMessageReceived : OnBridgeLoaded  EXIT");
                             }
                             break;
                     }
@@ -126,6 +144,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         private object _internalSource;
         private bool _bridgeConnected;
+        internal bool _activated;
 
         public NativeWebView()
         {
@@ -154,6 +173,7 @@ namespace P42.Uno.HtmlWebViewExtensions
             var base64 = Convert.ToBase64String(valueBytes);
             _bridgeConnected = false;
             _internalSource = null;
+            System.Diagnostics.Debug.WriteLine("NativeWebView.NavigateToText " + text.Substring(0,Math.Min(256,text.Length)));
             WebAssemblyRuntime.InvokeJS(new Message<string>(this, "data:text/html;charset=utf-8;base64," + base64));
         }
 
@@ -194,7 +214,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 
         private void UpdateFromInternalSource()
         {
-            if (_bridgeConnected)
+            if (_bridgeConnected && _activated)
             {
                 if (_internalSource is Uri uri)
                 {

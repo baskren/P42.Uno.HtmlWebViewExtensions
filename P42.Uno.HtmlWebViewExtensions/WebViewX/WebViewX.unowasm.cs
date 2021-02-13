@@ -65,6 +65,7 @@ namespace P42.Uno.HtmlWebViewExtensions
 		internal void OnNavigationCompleted(bool isSuccess, Uri uri, Windows.Web.WebErrorStatus status)
         {
 			var args = new WebViewXNavigationCompletedEventArgs(isSuccess, uri, status);
+            System.Diagnostics.Debug.WriteLine("WebViewX.OnNavigationCompleted " + uri);
 			NavigationCompleted?.Invoke(this, args);
         }
 
@@ -113,13 +114,13 @@ namespace P42.Uno.HtmlWebViewExtensions
 			{
                 System.Diagnostics.Debug.WriteLine("WebViewX.NavigatePartial: Absolute");
 				//_nativeWebView.SetHtmlAttribute("src", uri.AbsoluteUri);
-				_nativeWebView.SetInternalSource(uri);
+				_nativeWebView?.SetInternalSource(uri);
 			}
 		}
 
 		partial void NavigateToStringPartial(string text)
         {
-			_nativeWebView.SetInternalSource(text);
+			_nativeWebView?.SetInternalSource(text);
 		}
 
 
